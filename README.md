@@ -1,98 +1,205 @@
-# vinext-starter
+# Nan Pulse AI
 
-A clean full-stack starter running on
-[vinext](https://github.com/cloudflare/vinext), with optional Cloudflare D1 and
-Drizzle support.
+**The Operating Pulse of Sustainable Tourism**
 
-## Prerequisites
+Nan Pulse คือระบบตัดสินใจด้านการท่องเที่ยวของจังหวัดน่านที่ใช้ AI เพื่อช่วยตอบคำถามสำคัญเพียงข้อเดียว:
 
-- Node.js `>=22.13.0`
+> จังหวัดน่านจะกระจายโอกาสทางการท่องเที่ยวให้เกิดขึ้นตลอดทั้ง 12 เดือน แทนการกระจุกตัวอยู่เพียงบางพื้นที่และบางฤดูกาลได้อย่างไร?
 
-## Quick Start
+ระบบไม่ได้เริ่มจากคำถามว่า “นักท่องเที่ยวอยากไปที่ไหน” แต่เริ่มจาก “ตอนนี้จังหวัดควรสร้างโอกาสที่ไหน” แล้วเชื่อมการตัดสินใจไปยังชุมชน ผู้ประกอบการ และนักท่องเที่ยว
+
+## ทดลองใช้งาน
+
+- เว็บไซต์: [Nan Pulse](https://nan-pulse-tourism.gamedevelopersecment.chatgpt.site)
+- Repository: [kritdeveloper/Nan-Pulse-AI](https://github.com/kritdeveloper/Nan-Pulse-AI)
+
+> ข้อมูลผลกระทบและการจำลองบางส่วนเป็น Mock Simulation สำหรับการสาธิตแนวคิด ไม่ใช่สถิติหรือผลลัพธ์ที่เกิดขึ้นจริง ระบบแยกข้อมูลทางการออกจากค่าประมาณของ AI อย่างชัดเจน
+
+## Nan Pulse แก้ปัญหาอย่างไร
+
+ระบบทำงานเป็นวงจรปิด:
+
+```text
+Weather + Season + Community Need + Demand + PM2.5
+                         ↓
+                    AI Decision
+                         ↓
+                      Campaign
+                         ↓
+            Redirect Tourist Journey
+                         ↓
+                  Economic Impact
+                         ↓
+                  AI Feedback Loop
+```
+
+AI ตรวจจับโอกาสที่ยังไม่ได้ถูกใช้ เช่น ชุมชนพร้อมจัดกิจกรรมแต่ยังไม่มีนักท่องเที่ยว ฤดูเก็บเกี่ยวกำลังเริ่ม หรือพื้นที่รองมีอากาศเหมาะสม จากนั้นระบบเสนอการตัดสินใจพร้อมเหตุผล ความเชื่อมั่น ผลกระทบที่คาดการณ์ และความเสี่ยง
+
+## 3 ส่วนหลักของผลิตภัณฑ์
+
+### 1. Mission Control
+
+สำหรับหน่วยงานด้านการท่องเที่ยว ใช้ตรวจจับโอกาส ตัดสินใจสร้างแคมเปญ จำลองผลลัพธ์ และติดตามการกระจายโอกาสทางเศรษฐกิจ
+
+สิ่งสำคัญที่พบในส่วนนี้:
+
+- **Today's Decision** — AI บอกสิ่งที่จังหวัดควรทำวันนี้ พร้อม Reason, Confidence และ Expected Impact
+- **Opportunity & Campaign** — โอกาสที่มีอยู่แต่ยังไม่ได้รับการใช้ประโยชน์
+- **AI Opportunity Simulator** — ทดลองแคมเปญก่อนตัดสินใจจริง
+- **Tourism Health** — ประเมินความสมดุลของการท่องเที่ยว ไม่ได้แสดงเพียงจำนวนนักท่องเที่ยว
+- **KPI & Impact** — วัดผลตาม KPI หลักของโครงการ
+- **Evaluation Evidence** — เชื่อมความสามารถของระบบกับเกณฑ์การประเมิน
+
+### 2. Community Copilot
+
+สำหรับชุมชนและผู้ประกอบการ รับ Mission จากจังหวัดและช่วยเปลี่ยนเป็นสิ่งที่นำไปใช้ได้จริง เช่น:
+
+- แคมเปญตามฤดูกาล
+- โปรโมชัน
+- Caption ภาษาไทยและภาษาอังกฤษ
+- คำอธิบายกิจกรรม
+- กลุ่มนักท่องเที่ยวที่เหมาะกับความต้องการและ Capacity ของชุมชน
+
+ชุมชนไม่ได้เป็นเพียงข้อมูล Profile แต่สามารถสื่อสาร Need เช่น `Need Visitors`, `Need Promotion`, `Need Coffee Lovers` หรือ `Need Family Travelers`
+
+### 3. Adaptive Experience Planner
+
+สำหรับนักท่องเที่ยว ใช้จับคู่ความสนใจกับ Experience ที่ช่วยสนับสนุน Mission ของจังหวัด โดยพิจารณา:
+
+- ความสนใจของผู้เดินทาง
+- สภาพอากาศและ PM2.5
+- ฤดูกาล
+- ความหนาแน่นของนักท่องเที่ยว
+- ความพร้อมและ Capacity ของชุมชน
+- ผลกระทบที่การเดินทางจะสร้างให้ท้องถิ่น
+
+ส่วนนี้ไม่ใช่ระบบแนะนำสถานที่ทั่วไป แต่เป็นกลไกส่งต่อการตัดสินใจของจังหวัดไปสู่ประสบการณ์ที่เหมาะกับนักท่องเที่ยว
+
+## Demo Moment ที่แนะนำ
+
+ใช้เวลาโดยประมาณ 3 นาที
+
+### ขั้นที่ 1 — AI พบโอกาส
+
+เปิดหน้า **Today's Decision** ระบบจะแสดงข้อความ:
+
+> “ผมพบโอกาสใหม่ที่จะช่วยสร้างรายได้ให้ 18 ครัวเรือนในเวียงสาสัปดาห์นี้ คุณต้องการให้ผมสร้างแคมเปญและปรับเส้นทางนักท่องเที่ยวอัตโนมัติหรือไม่?”
+
+AI แสดงความเชื่อมั่น 94% พร้อมปัจจัย Weather, Demand, Season และ Community
+
+### ขั้นที่ 2 — Execute Mission
+
+กด **Execute Mission** แล้วระบบจะแสดงการทำงานต่อเนื่อง 4 ขั้น:
+
+1. สร้าง Campaign
+2. แจ้งชุมชนและผู้ประกอบการ
+3. เปลี่ยน Recommendation ของนักท่องเที่ยว
+4. จำลอง Impact
+
+### ขั้นที่ 3 — แสดงหลักฐาน Before/After
+
+ระบบเปรียบเทียบการกระจายตัวก่อนและหลังใช้ AI เช่น:
+
+| สถานการณ์ | ปัว | เวียงสา |
+|---|---:|---:|
+| Before AI | 80% | 3% |
+| After AI | 55% | 18% |
+
+พร้อมผลกระทบที่คาดการณ์ เช่น รายได้เพิ่ม จำนวนครัวเรือนที่ได้รับประโยชน์ และระยะเวลาพักที่เพิ่มขึ้น
+
+### ขั้นที่ 4 — ทดลอง AI Opportunity Simulator
+
+ไปที่ **AI Opportunity Simulator** แล้วเลือก **โปรโมตกาแฟเดือนกรกฎาคม** ระบบจะจำลองทันที:
+
+- นักท่องเที่ยวเพิ่ม `+62 คน`
+- รายได้โดยประมาณเพิ่ม `+280,000 บาท`
+- ประโยชน์กระจายสู่ `4 ชุมชน · 23 ครัวเรือน`
+- ความเสี่ยงระดับปานกลาง
+- ข้อจำกัดเรื่องฝนและขนาดกลุ่ม
+- คำแนะนำให้เริ่มด้วย Controlled Pilot ก่อนขยายแคมเปญ
+
+## AI Confidence หมายถึงอะไร
+
+ทุก Decision แสดง Confidence เพื่อให้ผู้ใช้เห็นระดับความมั่นใจของระบบ ไม่ใช่รับคำตอบจาก AI โดยไม่มีหลักฐาน
+
+Confidence พิจารณาจากปัจจัย เช่น:
+
+- Weather
+- Demand
+- Season
+- Community Need
+- Community Capacity
+- PM2.5
+- Tourist Density
+- ความสดใหม่และความครบถ้วนของข้อมูล
+
+Confidence ไม่ได้แทนการอนุมัติของมนุษย์ จังหวัดยังคงเป็นผู้ตัดสินใจก่อน Activate Campaign
+
+## KPI หลักของโครงการ
+
+Nan Pulse วัดความสำเร็จด้วย KPI หลักเพียง 3 ข้อ:
+
+1. **Increase Off-Season Experiences** — เพิ่มกิจกรรมที่ดึงดูดนักท่องเที่ยวในเดือนที่ไม่ใช่ High Season
+2. **Increase Community Participation** — เพิ่มจำนวนชุมชนและผู้ประกอบการที่เข้าร่วมและสร้างกิจกรรมผ่านระบบ
+3. **Improve Tourism Distribution** — กระจายนักท่องเที่ยวและโอกาสทางเศรษฐกิจไปยังพื้นที่ที่ยังไม่เป็นที่รู้จัก
+
+## แหล่งข้อมูลที่อ้างอิง
+
+- [ททท. จังหวัดน่าน](https://thai.tourismthailand.org/Destinations/Provinces/%E0%B8%99%E0%B9%88%E0%B8%B2%E0%B8%99/108)
+- [365 วัน มหัศจรรย์เมืองน่าเที่ยว: 5 Must Do in Nan](https://thai.tourismthailand.org/Articles/5-must-do-in-nan)
+- [TAT Data API](https://tatdataapi.io/)
+- [ททท. สำนักงานน่าน](https://www.facebook.com/tat.nan.office/)
+- [สำนักงานการท่องเที่ยวและกีฬาจังหวัดน่าน](https://nan.mots.go.th/)
+- [Government Data Catalog: สรุปสถานการณ์การท่องเที่ยวจังหวัดน่าน](https://gdcatalog.go.th/dataset/gdpublish-dataset-40-0111)
+- [Government Data Catalog: ปฏิทินการท่องเที่ยวประจำปีของจังหวัดน่าน](https://gdcatalog.go.th/dataset/gdpublish-40-021)
+
+## สิ่งที่ระบบไม่ทำ
+
+เพื่อให้ผลิตภัณฑ์โฟกัสที่การตัดสินใจและการกระจายโอกาส ระบบจึงไม่ครอบคลุม:
+
+- ระบบจองโรงแรม
+- ระบบชำระเงิน
+- Marketplace
+- Chatbot ทั่วไป
+- Social Review Feed
+
+## เริ่มต้นใช้งานสำหรับทีมพัฒนา
+
+### ความต้องการของระบบ
+
+- Node.js `22.13.0` หรือใหม่กว่า
+- npm
+
+### เปิดโปรเจกต์ในเครื่อง
 
 ```bash
 npm install
 npm run dev
+```
+
+จากนั้นเปิด Local URL ที่แสดงใน Terminal
+
+### ตรวจสอบก่อนส่งงาน
+
+```bash
 npm run build
 ```
 
-This starter does not use `wrangler.jsonc`.
+## โครงสร้างสำคัญของโปรเจกต์
 
-## Included Shape
+```text
+app/
+├── page.tsx             จุดเริ่มต้นของหน้าเว็บ
+├── nan-pulse-app.tsx    Product experience และ interaction หลัก
+├── globals.css          Visual system และ responsive behavior
+└── layout.tsx           Metadata และโครงสร้างหน้า
 
-- edit site code under `app/`
-- `.openai/hosting.json` declares optional Sites D1 and R2 bindings
-- `vite.config.ts` simulates declared bindings for local development
-- `db/schema.ts` starts intentionally empty
-- `examples/d1/` contains an optional D1 example surface
-- `drizzle.config.ts` supports local migration generation when needed
-
-## Workspace Auth Headers
-
-OpenAI workspace sites can read the current user's email from
-`oai-authenticated-user-email`.
-
-SIWC-authenticated workspace sites may also receive
-`oai-authenticated-user-full-name` when the user's SIWC profile has a non-empty
-`name` claim. The full-name value is percent-encoded UTF-8 and is accompanied by
-`oai-authenticated-user-full-name-encoding: percent-encoded-utf-8`.
-
-Treat the full name as optional and fall back to email when it is absent:
-
-```tsx
-import { headers } from "next/headers";
-
-export default async function Home() {
-  const requestHeaders = await headers();
-  const email = requestHeaders.get("oai-authenticated-user-email");
-  const encodedFullName = requestHeaders.get("oai-authenticated-user-full-name");
-  const fullName =
-    encodedFullName &&
-    requestHeaders.get("oai-authenticated-user-full-name-encoding") ===
-      "percent-encoded-utf-8"
-      ? decodeURIComponent(encodedFullName)
-      : null;
-
-  const displayName = fullName ?? email;
-  // ...
-}
+public/                  Static assets
+tests/                   การทดสอบ
 ```
 
-## Optional Dispatch-Owned ChatGPT Sign-In
+## หลักการสำคัญ
 
-Import the ready-to-use helpers from `app/chatgpt-auth.ts` when the site needs
-optional or required ChatGPT sign-in:
+> Nan Pulse เป็น “ระบบการตัดสินใจ” ไม่ใช่ “ระบบแนะนำสถานที่”
 
-- Use `getChatGPTUser()` for optional signed-in UI.
-- Use `requireChatGPTUser(returnTo)` for server-rendered pages that should send
-  anonymous visitors through Sign in with ChatGPT.
-- Use `chatGPTSignInPath(returnTo)` and `chatGPTSignOutPath(returnTo)` for
-  browser links or actions.
-- Pass a same-origin relative `returnTo` path for the destination after sign-in
-  or sign-out. The helper validates and safely encodes it.
-- Mark protected pages with `export const dynamic = "force-dynamic"` because
-  they depend on per-request identity headers.
-
-Dispatch owns `/signin-with-chatgpt`, `/signout-with-chatgpt`, `/callback`, the
-OAuth cookies, and identity header injection. Do not implement app routes for
-those reserved paths. Routes that do not import and call the helper remain
-anonymous-compatible.
-
-SIWC establishes identity only; it does not prove workspace membership. Use the
-Sites hosting platform's access policy controls for workspace-wide restrictions,
-or enforce explicit server-side membership or allowlist checks.
-
-Use SIWC for account pages, user-specific dashboards, saved records, and write
-actions tied to the current ChatGPT user. Leave public content anonymous.
-
-## Useful Commands
-
-- `npm run dev`: start local development
-- `npm run build`: verify the vinext build output
-- `npm test`: build the starter and verify its rendered loading skeleton
-- `npm run db:generate`: generate Drizzle migrations after schema changes
-
-## Learn More
-
-- [vinext Documentation](https://github.com/cloudflare/vinext)
-- [Drizzle D1 Guide](https://orm.drizzle.team/docs/get-started/d1-new)
+คุณค่าหลักของระบบคือการทำให้ AI มองเห็นโอกาสที่จังหวัดยังไม่ได้ใช้ จำลองผลลัพธ์ก่อนดำเนินการ ส่งต่อ Mission ไปยังชุมชนและนักท่องเที่ยว แล้วเรียนรู้จากผลลัพธ์จริงเพื่อให้การกระจายการท่องเที่ยวดีขึ้นในรอบถัดไป
