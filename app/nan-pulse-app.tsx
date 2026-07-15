@@ -11,17 +11,27 @@ const views: Array<{ id: View; label: string; note: string; mark: string }> = [
   { id: "planner", label: "Experience Planner", note: "For travelers", mark: "↗" },
 ];
 
+const officialSources = [
+  { name: "ททท. จังหวัดน่าน", use: "แหล่งท่องเที่ยวและอัตลักษณ์พื้นที่", url: "https://thai.tourismthailand.org/Destinations/Provinces/%E0%B8%99%E0%B9%88%E0%B8%B2%E0%B8%99/108", status: "Verified source" },
+  { name: "5 Must Do in Nan", use: "เทศกาล อาหาร กิจกรรม และผลิตภัณฑ์", url: "https://thai.tourismthailand.org/Articles/5-must-do-in-nan", status: "Verified source" },
+  { name: "TAT Data API", use: "Tourism data connector", url: "https://tatdataapi.io/", status: "Connector ready" },
+  { name: "ททท.สำนักงานน่าน", use: "ข่าวและกิจกรรมล่าสุด", url: "https://www.facebook.com/tat.nan.office/", status: "Monitoring channel" },
+  { name: "ท่องเที่ยวและกีฬาจังหวัดน่าน", use: "สถิติการท่องเที่ยวทางการ", url: "https://nan.mots.go.th/", status: "Verified source" },
+  { name: "GD Catalog · Tourism Situation", use: "ชุดข้อมูลสรุปสถานการณ์รายเดือน", url: "https://gdcatalog.go.th/dataset/gdpublish-dataset-40-0111", status: "Government dataset" },
+  { name: "GD Catalog · Tourism Calendar", use: "ปฏิทินกิจกรรมประจำปี", url: "https://gdcatalog.go.th/dataset/gdpublish-40-021", status: "Government dataset" },
+];
+
 const months = [
-  { month: "ม.ค.", title: "Coffee Harvest", community: "บ่อเกลือ", confidence: 92, state: "recommended", campaign: "Nan First Harvest", audience: "Coffee lovers", window: "10–28 ม.ค.", channels: "Creator stories · Café partners", impact: "+148K บาท", kpi: "Off-season experiences", need: "High", season: "Peak harvest", demand: "Growing" },
+  { month: "ม.ค.", title: "Maneepruek Coffee", community: "ทุ่งช้าง", confidence: 92, state: "recommended", campaign: "Nan First Harvest", audience: "Coffee lovers", window: "ม.ค. · ตรวจวันจัดอีกครั้ง", channels: "Creator stories · Café partners", impact: "+148K บาท", kpi: "Off-season experiences", need: "High", season: "Coffee learning", demand: "Growing" },
   { month: "ก.พ.", title: "Craft & Flowers", community: "ท่าวังผา", confidence: 81, state: "ready", campaign: "Craft in Bloom", audience: "Families", window: "3–18 ก.พ.", channels: "Family media · Schools", impact: "+84K บาท", kpi: "Community participation", need: "Medium", season: "Good", demand: "Stable" },
-  { month: "มี.ค.", title: "Dry Season Food", community: "นาน้อย", confidence: 74, state: "watch", campaign: "Nan Dry Table", audience: "Food explorers", window: "8–24 มี.ค.", channels: "Food creators · PR", impact: "+69K บาท", kpi: "Tourism distribution", need: "High", season: "Short window", demand: "Low" },
+  { month: "มี.ค.", title: "Hok Peng Tradition", community: "ภูเพียง", confidence: 91, state: "recommended", campaign: "Faith & Living Nan", audience: "Culture seekers", window: "ขึ้น 15 ค่ำ เดือน 6 เหนือ", channels: "Culture media · Community stories", impact: "+96K บาท", kpi: "Tourism distribution", need: "High", season: "Documented in March", demand: "Opportunity" },
   { month: "เม.ย.", title: "Herbal Retreat", community: "สันติสุข", confidence: 89, state: "recommended", campaign: "Cool Down in Nan", audience: "Wellness Travelers", window: "4–21 เม.ย.", channels: "Wellness media · CRM", impact: "+132K บาท", kpi: "Off-season experiences", need: "High", season: "Ideal", demand: "Growing" },
-  { month: "พ.ค.", title: "Planting Stories", community: "แม่จริม", confidence: 78, state: "ready", campaign: "Plant a Story", audience: "Families", window: "12–26 พ.ค.", channels: "Family creators · Schools", impact: "+73K บาท", kpi: "Community participation", need: "Medium", season: "Planting", demand: "Low" },
+  { month: "พ.ค.", title: "Paet Peng Tradition", community: "เวียงสา", confidence: 86, state: "ready", campaign: "Living Faith in Wiang Sa", audience: "Culture seekers", window: "พฤษภาคม · ตรวจวันจัดอีกครั้ง", channels: "Culture media · Local network", impact: "+83K บาท", kpi: "Community participation", need: "Medium", season: "Documented in May", demand: "Low" },
   { month: "มิ.ย.", title: "Forest After Rain", community: "สองแคว", confidence: 84, state: "ready", campaign: "After Rain, Nan", audience: "Nature seekers", window: "6–23 มิ.ย.", channels: "Outdoor media · Video", impact: "+98K บาท", kpi: "Tourism distribution", need: "High", season: "Fresh forest", demand: "Emerging" },
   { month: "ก.ค.", title: "Rice & Rivers", community: "ภูเพียง", confidence: 76, state: "watch", campaign: "Green Rice Weekend", audience: "Slow travelers", window: "11–28 ก.ค.", channels: "Community pages · CRM", impact: "+66K บาท", kpi: "Off-season experiences", need: "Medium", season: "Green season", demand: "Low" },
   { month: "ส.ค.", title: "Textile Learning", community: "เวียงสา", confidence: 94, state: "active", campaign: "Textile Learning Month", audience: "Craft learners", window: "8–25 ส.ค.", channels: "Craft creators · Workshops", impact: "+92K บาท", kpi: "Community participation", need: "High", season: "Ideal", demand: "Gap 60 people" },
-  { month: "ก.ย.", title: "Forest Food", community: "เชียงกลาง", confidence: 82, state: "ready", campaign: "Forest to Table", audience: "Food explorers", window: "5–22 ก.ย.", channels: "Food media · Local chefs", impact: "+105K บาท", kpi: "Tourism distribution", need: "High", season: "Foraging", demand: "Emerging" },
-  { month: "ต.ค.", title: "Harvest Community", community: "บ้านหลวง", confidence: 87, state: "recommended", campaign: "Harvest Together", audience: "Culture seekers", window: "7–24 ต.ค.", channels: "Culture media · PR", impact: "+119K บาท", kpi: "Community participation", need: "High", season: "Harvest", demand: "Growing" },
+  { month: "ก.ย.", title: "Tan Kuay Salak", community: "เครือข่ายชุมชนล้านนา", confidence: 90, state: "ready", campaign: "Stories of Giving", audience: "Culture seekers", window: "ก.ย.–ต.ค. ตามปฏิทินจันทรคติ", channels: "Culture media · Local temples", impact: "+105K บาท", kpi: "Tourism distribution", need: "High", season: "Documented tradition", demand: "Emerging" },
+  { month: "ต.ค.", title: "Nan Boat Tradition", community: "ชุมชนริมน้ำน่าน", confidence: 87, state: "recommended", campaign: "River of Nan", audience: "Culture seekers", window: "ตรวจวันจัดจากปฏิทินจังหวัด", channels: "Culture media · PR", impact: "+119K บาท", kpi: "Community participation", need: "High", season: "Annual tradition", demand: "Growing" },
   { month: "พ.ย.", title: "Cultural Routes", community: "ปัว", confidence: 71, state: "watch", campaign: "Lanna Living Route", audience: "Culture seekers", window: "2–16 พ.ย.", channels: "Travel media · Partners", impact: "+88K บาท", kpi: "Tourism distribution", need: "Low", season: "High season", demand: "High" },
   { month: "ธ.ค.", title: "Winter Slow Travel", community: "เมืองน่าน", confidence: 68, state: "full", campaign: "Stay Longer, Go Further", audience: "Winter travelers", window: "1–20 ธ.ค.", channels: "Hotel CRM · Route nudges", impact: "+64K บาท", kpi: "Tourism distribution", need: "Low", season: "Peak", demand: "Over capacity" },
 ];
@@ -73,6 +83,12 @@ function MissionView({ onNavigate }: { onNavigate: () => void }) {
           </button>
           <button className="text-action" onClick={onNavigate}>ดูโอกาสเดือนอื่น <span>→</span></button>
         </div>
+      </section>
+
+      <section className="official-snapshot" aria-labelledby="official-data-title">
+        <div className="snapshot-head"><div><p className="eyebrow">Official Tourism Snapshot</p><h2 id="official-data-title">สถานการณ์จริง ม.ค.–มี.ค. 2569</h2></div><a href="https://nan.mots.go.th/news/2732" target="_blank" rel="noreferrer">สำนักงานการท่องเที่ยวและกีฬาจังหวัดน่าน ↗</a></div>
+        <div className="snapshot-metrics"><div><strong>422,362</strong><span>ผู้เยี่ยมเยือนสะสม</span><em>+4.39% YoY</em></div><div><strong>1,186.83M</strong><span>บาท รายได้รวม</span><em>+5.83% YoY</em></div><div><strong>76.55%</strong><span>อัตราเข้าพักเฉลี่ย</span><em>317,758 ผู้เข้าพัก</em></div><div><strong>98.15%</strong><span>ผู้เยี่ยมเยือนชาวไทย</span><em>ต่างชาติ 7,790 คน</em></div></div>
+        <p className="snapshot-note"><strong>Decision signal:</strong> เดือนมีนาคมมีผู้เยี่ยมเยือน 108,499 คน รายได้ 305.71 ล้านบาท และอัตราเข้าพัก 53.02% ซึ่งต่ำกว่าค่าเฉลี่ยสะสม—เป็นหลักฐานสำหรับการตัดสินใจสร้าง demand นอกช่วงพีค ไม่ใช่ตัวเลขคาดการณ์ของ AI</p>
       </section>
 
       <section className="impact-strip" aria-labelledby="impact-title">
@@ -271,6 +287,13 @@ function ImpactView() {
   );
 }
 
+function OfficialDataSources() {
+  return <section className="source-register">
+    <div className="source-register-head"><div><p className="eyebrow">Data Provenance</p><h2>แหล่งข้อมูลที่ใช้ตัดสินใจ</h2></div><p>Official data และ AI estimates ถูกแยกจากกันอย่างชัดเจน ระบบไม่แสดงค่าคาดการณ์เป็นสถิติจริง</p></div>
+    <div className="source-grid">{officialSources.map((source, index) => <a key={source.name} href={source.url} target="_blank" rel="noreferrer"><span>0{index + 1}</span><div><strong>{source.name}</strong><small>{source.use}</small></div><em>{source.status}</em><b>↗</b></a>)}</div>
+  </section>;
+}
+
 function MissionControl() {
   const [section, setSection] = useState<MissionSection>("today");
   const sections: Array<{ id: MissionSection; label: string }> = [
@@ -287,6 +310,7 @@ function MissionControl() {
     {section === "opportunities" && <OpportunityView />}
     {section === "forecast" && <ForecastView />}
     {section === "impact" && <ImpactView />}
+    <OfficialDataSources />
   </div>;
 }
 
