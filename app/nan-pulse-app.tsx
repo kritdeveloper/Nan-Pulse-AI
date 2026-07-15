@@ -59,6 +59,13 @@ function Signal({ label, value, tone = "good" }: { label: string; value: string;
   );
 }
 
+function DecisionConfidence({ value, factors = ["Weather", "Demand", "Season", "Community"], dark = false }: { value: number; factors?: string[]; dark?: boolean }) {
+  return <div className={`decision-confidence ${dark ? "confidence-dark" : ""}`}>
+    <div><span>AI Confidence</span><strong>{value}%</strong></div>
+    <div><span>Based on</span><p>{factors.map(factor => <b key={factor}>{factor}</b>)}</p></div>
+  </div>;
+}
+
 function MissionView({ onNavigate }: { onNavigate: () => void }) {
   const [approved, setApproved] = useState(false);
   const [flowActive, setFlowActive] = useState(false);
@@ -77,6 +84,7 @@ function MissionView({ onNavigate }: { onNavigate: () => void }) {
         </div>
 
         <p className="decision-copy">We recommend launching <strong>“Coffee Route Campaign”</strong> วันนี้ เพื่อดึง Coffee Lovers จากพื้นที่หนาแน่นไปยังสวนกาแฟและชุมชนที่พร้อมรับนักท่องเที่ยว คาดว่าจะสร้างรายได้เพิ่ม <strong>+120,000 THB</strong></p>
+        <DecisionConfidence value={94} dark />
 
         <div className="decision-actions">
           <button className="primary-action" onClick={() => setApproved(true)} disabled={approved}>
@@ -203,7 +211,7 @@ function OpportunityView() {
               <p>AI proposed campaign</p><strong>{item.campaign}</strong>
               <div>{item.audiences.map(audience => <span key={audience}>{audience}</span>)}</div>
             </div>
-            <div className="exchange-impact"><p>Expected economic impact</p><strong>{item.income}</strong><span>{item.households}</span><em>{item.confidence}% confidence</em></div>
+            <div className="exchange-impact"><p>Expected economic impact</p><strong>{item.income}</strong><span>{item.households}</span><em>{item.confidence}% AI Confidence</em><small>Based on Weather · Demand · Season · Community</small></div>
             <button className="exchange-cta" onClick={() => setGenerated(item.id)}>{generated === item.id ? "Campaign ready ✓" : "Generate campaign"}<span>→</span></button>
           </article>
         ))}
@@ -222,6 +230,7 @@ function OpportunityView() {
           <p>AI เปลี่ยน seasonal opportunity ของ <strong>{active.community}</strong> ให้เป็น campaign brief ที่พร้อมส่งต่อ โดยอิงจาก Need, Season และ Demand จริง</p>
           <div className="seasonal-confidence"><span>{active.confidence}%</span><small>AI confidence</small></div>
         </div>
+        <DecisionConfidence value={active.confidence} dark />
         <div className="seasonal-logic"><span>Community Need <b>{active.need}</b></span><span>Season <b>{active.season}</b></span><span>Demand <b>{active.demand}</b></span></div>
         <div className="campaign-brief">
           <div><span>Target travelers</span><strong>{active.audience}</strong></div>
@@ -296,9 +305,9 @@ function ImpactView() {
       </section>
       <div className="calendar-divider"><span>Evidence from recent missions</span></div>
       <section className="mission-feed">
-        <article><span className="feed-time">Today · 08:30</span><div className="feed-event"><i>AI redirected</i><strong>42 tourists</strong><span>เมืองน่าน → เวียงสา</span></div><b className="flow-arrow">↓</b><div className="feed-result"><i>Income</i><strong>+92,000</strong><span>บาท · 11 ครัวเรือน</span></div></article>
-        <article><span className="feed-time">Yesterday · 16:10</span><div className="feed-event"><i>Campaign activated</i><strong>Herbal Retreat</strong><span>สันติสุข · 2 ธุรกิจ</span></div><b className="flow-arrow">↓</b><div className="feed-result"><i>Expected stays</i><strong>+24 nights</strong><span>ภายใน 14 วัน</span></div></article>
-        <article><span className="feed-time">12 Jul · 11:45</span><div className="feed-event"><i>Capacity protected</i><strong>18 tourists</strong><span>เปลี่ยนจากปัว → แม่จริม</span></div><b className="flow-arrow">↓</b><div className="feed-result"><i>Balance gained</i><strong>+6%</strong><span>Place diversity</span></div></article>
+        <article><span className="feed-time">Today · 08:30</span><div className="feed-event"><i>AI redirected · 94% confidence</i><strong>42 tourists</strong><span>เมืองน่าน → เวียงสา</span></div><b className="flow-arrow">↓</b><div className="feed-result"><i>Income</i><strong>+92,000</strong><span>บาท · 11 ครัวเรือน</span></div></article>
+        <article><span className="feed-time">Yesterday · 16:10</span><div className="feed-event"><i>Campaign activated · 89% confidence</i><strong>Herbal Retreat</strong><span>สันติสุข · 2 ธุรกิจ</span></div><b className="flow-arrow">↓</b><div className="feed-result"><i>Expected stays</i><strong>+24 nights</strong><span>ภายใน 14 วัน</span></div></article>
+        <article><span className="feed-time">12 Jul · 11:45</span><div className="feed-event"><i>Capacity protected · 86% confidence</i><strong>18 tourists</strong><span>เปลี่ยนจากปัว → แม่จริม</span></div><b className="flow-arrow">↓</b><div className="feed-result"><i>Balance gained</i><strong>+6%</strong><span>Place diversity</span></div></article>
       </section>
       <section className="learning-card">
         <div><p className="eyebrow">AI Feedback Loop</p><h2>สิ่งที่ระบบเรียนรู้จากรอบล่าสุด</h2></div>
@@ -352,6 +361,7 @@ function TourismDigitalTwin() {
       <div className={`twin-stage ${active ? "has-scenario" : ""}`} onDragOver={event => event.preventDefault()} onDrop={event => { event.preventDefault(); setSelected(event.dataTransfer.getData("campaign")); }}>
         {!active ? <div className="empty-twin"><span>◎</span><strong>Drop campaign here</strong><small>AI จะจำลอง Before / After ทันที</small></div> : <>
           <div className="twin-head"><div><p className="eyebrow">Running simulation</p><h2>{active.name}</h2></div><span>{active.confidence}% confidence</span></div>
+          <DecisionConfidence value={active.confidence} factors={["Weather", "Demand", "Season", "Community Capacity"]} />
           <div className="twin-density"><div><p>Before AI</p><article><span>ปัว</span><strong>80%</strong><i><b style={{ width: "80%" }} /></i></article><article><span>เวียงสา</span><strong>3%</strong><i><b style={{ width: "3%" }} /></i></article></div><em>→</em><div><p>After AI</p><article><span>ปัว</span><strong>{active.pua}%</strong><i><b style={{ width: `${active.pua}%` }} /></i></article><article><span>เวียงสา</span><strong>{active.wiangsa}%</strong><i><b style={{ width: `${active.wiangsa}%` }} /></i></article></div></div>
           <div className="twin-results"><div><span>Visitors</span><strong>{active.visitors}</strong></div><div><span>Income</span><strong>{active.income}</strong></div><div><span>Stay</span><strong>{active.stay}</strong></div><div><span>Communities</span><strong>{active.communities}</strong></div></div>
           <div className="twin-disclaimer"><span>Mock Simulation</span><p>ผลลัพธ์นี้เป็น scenario estimate สำหรับเปรียบเทียบทางเลือก ไม่ใช่ผลลัพธ์จริง จังหวัดต้องอนุมัติก่อน activate campaign</p><button onClick={() => setSelected(null)}>Reset</button></div>
@@ -406,6 +416,7 @@ function CommunityCopilot() {
       <div className={`copilot-output ${created ? "ready" : ""}`}>
         <div className="output-head"><div><p className="eyebrow">Mission response · {mission}</p><h2>{mission === "Need Coffee Lovers" ? "Coffee Route Stories" : "Textile Rain Stories"}</h2></div><span>92% fit</span></div>
         <p className="output-lead">AI รับฟัง Mission “{mission}” ของ {community} แล้วเปลี่ยนเป็น Campaign ที่สอดคล้องกับฤดูกาลและ capacity ของชุมชน</p>
+        <DecisionConfidence value={92} factors={["Demand", "Season", "Community Need", "Capacity"]} />
         <div className="content-pack"><article><span>Promotion</span><strong>จอง Coffee Route รับ Mini Cupping Session ฟรี</strong></article><article><span>Thai caption</span><p>พรุ่งนี้กาแฟล็อตแรกเริ่มเก็บเกี่ยว มารู้จักกาแฟน่านตั้งแต่ต้นจนถึงถ้วยกับคนปลูกตัวจริง</p></article><article><span>English caption</span><p>Tomorrow, Nan’s first coffee harvest begins. Follow the bean from mountain farm to cup with local growers.</p></article><article><span>Suggested activity</span><strong>Coffee Harvest + Cupping + Local Lunch</strong></article></div>
         <div className="output-impact"><span>Expected result</span><strong>+42 visitors</strong><strong>+68,000 บาท</strong><strong>8 households</strong></div>
       </div>
@@ -423,7 +434,7 @@ function AdaptiveExperiencePlanner() {
       <div className="adaptive-signals"><p className="eyebrow">Live conditions</p><div><span>Weather</span><strong>ฝนหยุดพรุ่งนี้</strong><small>เหมาะกับ forest route</small></div><div><span>Season</span><strong>Herbal green season</strong><small>วัตถุดิบพร้อมที่สุด</small></div><div><span>Tourism pulse</span><strong>เวียงสา capacity พร้อม</strong><small>ปัวหนาแน่นกว่าปกติ</small></div></div>
     </section>
     <section className={`experience-plan ${planned ? "ready" : ""}`}>
-      <div className="plan-title"><p className="eyebrow">Mission-matched experience · {interest}</p><h2>Forest Reset Journey</h2><p>ประสบการณ์ 2 วัน 1 คืนที่เกิดจาก Decision ให้กระจาย demand จากพื้นที่หนาแน่นไปยังสันติสุขและเวียงสา</p></div>
+      <div className="plan-title"><p className="eyebrow">Mission-matched experience · {interest}</p><h2>Forest Reset Journey</h2><p>ประสบการณ์ 2 วัน 1 คืนที่เกิดจาก Decision ให้กระจาย demand จากพื้นที่หนาแน่นไปยังสันติสุขและเวียงสา</p><DecisionConfidence value={88} factors={["Weather", "Traveler Fit", "Season", "Community Capacity"]} /></div>
       <ol><li><span>01</span><div><strong>Forest Therapy</strong><small>สันติสุข · 09:00</small></div></li><li><span>02</span><div><strong>Herbal Local Lunch</strong><small>ครัวเรือนแม่คำ · 12:30</small></div></li><li><span>03</span><div><strong>Natural Dye Workshop</strong><small>เวียงสา · 15:00</small></div></li><li><span>04</span><div><strong>Community Homestay</strong><small>บ้านดอนไชย · Overnight</small></div></li></ol>
       <div className="plan-impact"><p>Trip impact</p><strong>2</strong><span>communities</span><strong>6</strong><span>local businesses</span><strong>+1</strong><span>night in Nan</span></div>
     </section>
