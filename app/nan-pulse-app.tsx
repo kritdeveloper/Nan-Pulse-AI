@@ -61,6 +61,7 @@ function Signal({ label, value, tone = "good" }: { label: string; value: string;
 
 function MissionView({ onNavigate }: { onNavigate: () => void }) {
   const [approved, setApproved] = useState(false);
+  const [flowActive, setFlowActive] = useState(false);
   return (
     <div className="view-stack">
       <section className="decision-hero" aria-labelledby="today-decision">
@@ -83,6 +84,21 @@ function MissionView({ onNavigate }: { onNavigate: () => void }) {
           </button>
           <button className="text-action" onClick={onNavigate}>ดูโอกาสเดือนอื่น <span>→</span></button>
         </div>
+      </section>
+
+      <section className={`ai-decision-flow ${flowActive ? "flow-active" : ""}`} aria-labelledby="decision-flow-title">
+        <div className="flow-heading"><div><p className="eyebrow">AI Decision Flow</p><h2 id="decision-flow-title">จาก Signal สู่ Impact</h2><p>AI ตรวจจับสัญญาณพร้อมกัน แล้วตัดสินใจสร้าง demand และเปลี่ยนทิศทางนักท่องเที่ยวภายใต้ capacity ของชุมชน</p></div><button onClick={() => setFlowActive(true)} disabled={flowActive}>{flowActive ? "Decision flow complete ✓" : "Run decision flow"}</button></div>
+        <div className="flow-track">
+          <article className="flow-node node-detect"><span>01 · Detect</span><i>✦</i><strong>AI detects</strong><small>6 live data signals</small></article><b>→</b>
+          <article className="flow-node node-signal"><span>02 · Weather</span><i>☂</i><strong>Rain</strong><small>ฝนหยุดพรุ่งนี้</small></article><b>→</b>
+          <article className="flow-node node-signal"><span>03 · Calendar</span><i>◫</i><strong>Festival</strong><small>ช่วงงานแข่งเรือน่าน</small></article><b>→</b>
+          <article className="flow-node node-signal"><span>04 · Community</span><i>⌂</i><strong>Community Need</strong><small>เวียงสาต้องการ +60 คน</small></article><b>→</b>
+          <article className="flow-node node-signal"><span>05 · Density</span><i>◉</i><strong>Tourist Density</strong><small>เมืองน่าน 82% · เวียงสา 34%</small></article><b>→</b>
+          <article className="flow-node node-action"><span>06 · Create</span><i>◆</i><strong>Generate Campaign</strong><small>Textile Learning Week</small></article><b>→</b>
+          <article className="flow-node node-action"><span>07 · Act</span><i>↗</i><strong>Redirect Tourists</strong><small>42 คน → เวียงสา</small></article><b>→</b>
+          <article className="flow-node node-impact"><span>08 · Learn</span><i>+</i><strong>Impact</strong><small>+92K บาท · 11 ครัวเรือน</small></article>
+        </div>
+        <div className="flow-logic"><span>Signal layer</span><i>Rain + Festival + Need + Density</i><b>Decision threshold passed · 86/100</b><strong>Human approval required before activation</strong></div>
       </section>
 
       <section className="official-snapshot" aria-labelledby="official-data-title">
@@ -323,7 +339,7 @@ function MissionControl() {
   ];
   return <div className="product-workspace">
     <header className="workspace-identity"><div><p className="eyebrow">01 · Provincial Decision System</p><h1>Mission Control</h1></div><p>ระบบตัดสินใจว่า “จังหวัดควรสร้างโอกาสที่ไหน เมื่อไร และให้ใคร” ก่อนส่ง Decision ไปสู่แคมเปญ ชุมชน และการเดินทางจริง</p></header>
-    <section className="decision-doctrine"><div><span>Nan Pulse is</span><strong>ระบบการตัดสินใจ</strong></div><b>≠</b><div><span>Nan Pulse is not</span><strong>ระบบแนะนำสถานที่</strong></div><ol><li>Community Need</li><li>AI Decision</li><li>Campaign</li><li>Experience</li><li>Impact</li></ol></section>
+    <section className="decision-doctrine"><div><span>Nan Pulse is</span><strong>ระบบการตัดสินใจ</strong></div><b>≠</b><div><span>Nan Pulse is not</span><strong>ระบบแนะนำสถานที่</strong></div><ol><li>AI Detects</li><li>Signals</li><li>Campaign</li><li>Redirect</li><li>Impact</li></ol></section>
     <section className="criteria-ribbon" aria-label="เกณฑ์การให้คะแนน"><button onClick={() => setSection("impact")}><strong>20</strong><span>Impact เชิงท่องเที่ยว</span></button><button onClick={() => setSection("today")}><strong>15</strong><span>ความเข้าใจชุมชน</span></button><button onClick={() => setSection("opportunities")}><strong>15</strong><span>ความคิดสร้างสรรค์</span></button><button onClick={() => setSection("evaluation")}><strong>15</strong><span>การใช้ AI</span></button></section>
     <nav className="workspace-tabs" aria-label="เครื่องมือ Mission Control">{sections.map(item => <button key={item.id} className={section === item.id ? "active" : ""} onClick={() => setSection(item.id)}>{item.label}</button>)}</nav>
     {section === "today" && <MissionView onNavigate={() => setSection("opportunities")} />}
