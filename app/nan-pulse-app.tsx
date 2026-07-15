@@ -2,14 +2,13 @@
 
 import { useMemo, useState } from "react";
 
-type View = "mission" | "community" | "opportunity" | "forecast" | "impact";
+type View = "mission" | "copilot" | "planner";
+type MissionSection = "today" | "opportunities" | "forecast" | "impact";
 
 const views: Array<{ id: View; label: string; note: string; mark: string }> = [
-  { id: "mission", label: "Mission Control", note: "Today’s Decision", mark: "◎" },
-  { id: "community", label: "Community Pulse", note: "Needs & readiness", mark: "⌂" },
-  { id: "opportunity", label: "Opportunity Exchange", note: "Unused potential", mark: "◇" },
-  { id: "forecast", label: "Forecast", note: "Demand outlook", mark: "↗" },
-  { id: "impact", label: "Economic Pulse", note: "Impact & learning", mark: "◉" },
+  { id: "mission", label: "Mission Control", note: "For tourism authorities", mark: "◎" },
+  { id: "copilot", label: "Community Copilot", note: "For local operators", mark: "✦" },
+  { id: "planner", label: "Experience Planner", note: "For travelers", mark: "↗" },
 ];
 
 const months = [
@@ -50,7 +49,7 @@ function Signal({ label, value, tone = "good" }: { label: string; value: string;
   );
 }
 
-function MissionView({ onNavigate }: { onNavigate: (view: View) => void }) {
+function MissionView({ onNavigate }: { onNavigate: () => void }) {
   const [approved, setApproved] = useState(false);
   return (
     <div className="view-stack">
@@ -72,7 +71,7 @@ function MissionView({ onNavigate }: { onNavigate: (view: View) => void }) {
           <button className="primary-action" onClick={() => setApproved(true)} disabled={approved}>
             {approved ? "ส่งเข้ากระบวนการอนุมัติแล้ว" : "ส่งเข้ากระบวนการอนุมัติ"}
           </button>
-          <button className="text-action" onClick={() => onNavigate("opportunity")}>ดูโอกาสเดือนอื่น <span>→</span></button>
+          <button className="text-action" onClick={onNavigate}>ดูโอกาสเดือนอื่น <span>→</span></button>
         </div>
       </section>
 
@@ -272,6 +271,65 @@ function ImpactView() {
   );
 }
 
+function MissionControl() {
+  const [section, setSection] = useState<MissionSection>("today");
+  const sections: Array<{ id: MissionSection; label: string }> = [
+    { id: "today", label: "Today’s Decision" },
+    { id: "opportunities", label: "Opportunity & Campaign" },
+    { id: "forecast", label: "Tourism Health" },
+    { id: "impact", label: "KPI & Impact" },
+  ];
+  return <div className="product-workspace">
+    <header className="workspace-identity"><div><p className="eyebrow">01 · For tourism authorities</p><h1>Mission Control</h1></div><p>ติดตามสถานการณ์ วิเคราะห์โอกาส และออกแบบแคมเปญที่เหมาะกับแต่ละเดือน</p></header>
+    <nav className="workspace-tabs" aria-label="เครื่องมือ Mission Control">{sections.map(item => <button key={item.id} className={section === item.id ? "active" : ""} onClick={() => setSection(item.id)}>{item.label}</button>)}</nav>
+    {section === "today" && <MissionView onNavigate={() => setSection("opportunities")} />}
+    {section === "opportunities" && <OpportunityView />}
+    {section === "forecast" && <ForecastView />}
+    {section === "impact" && <ImpactView />}
+  </div>;
+}
+
+function CommunityCopilot() {
+  const [community, setCommunity] = useState("เวียงสา");
+  const [goal, setGoal] = useState("เพิ่มผู้เข้าร่วมเวิร์กช็อป");
+  const [created, setCreated] = useState(false);
+  return <div className="product-workspace">
+    <header className="workspace-identity"><div><p className="eyebrow">02 · For communities & operators</p><h1>Community Copilot</h1></div><p>ผู้ช่วย AI สำหรับสร้างโปรโมชัน เนื้อหาประชาสัมพันธ์ และกิจกรรมที่เหมาะกับฤดูกาล</p></header>
+    <section className="copilot-layout">
+      <div className="copilot-input">
+        <div className="copilot-orb">✦</div><p className="eyebrow">Tell your Copilot</p><h2>เดือนนี้คุณอยาก<br />สร้างโอกาสอะไร</h2>
+        <label>ชุมชน<select value={community} onChange={e => { setCommunity(e.target.value); setCreated(false); }}><option>เวียงสา</option><option>สันติสุข</option><option>แม่จริม</option></select></label>
+        <label>เป้าหมาย<select value={goal} onChange={e => { setGoal(e.target.value); setCreated(false); }}><option>เพิ่มผู้เข้าร่วมเวิร์กช็อป</option><option>สร้างโปรโมชันช่วง Low Season</option><option>เปิดตัวกิจกรรมใหม่</option></select></label>
+        <div className="copilot-context"><span>Season <b>Green season</b></span><span>Demand <b>ต่ำกว่าเป้าหมาย</b></span><span>Capacity <b>เหลือ 60 คน</b></span></div>
+        <button className="primary-action" onClick={() => setCreated(true)}>{created ? "Promotion created ✓" : "Create with AI"}</button>
+      </div>
+      <div className={`copilot-output ${created ? "ready" : ""}`}>
+        <div className="output-head"><div><p className="eyebrow">AI Seasonal Recommendation</p><h2>Textile Rain Stories</h2></div><span>92% fit</span></div>
+        <p className="output-lead">ชวนผู้เดินทางมาเรียนรู้สีธรรมชาติหลังฝน ผ่านเรื่องเล่าของช่างย้อมผ้า {community}</p>
+        <div className="content-pack"><article><span>Promotion</span><strong>มา 2 คน รับชุดทดลองย้อมสีธรรมชาติฟรี</strong></article><article><span>Thai caption</span><p>หลังฝน สีของป่าจะชัดที่สุด มาสร้างผ้าผืนเดียวในโลกกับช่างย้อมเวียงสา</p></article><article><span>English caption</span><p>After the rain, Nan’s natural colors come alive. Make your own textile story with local artisans.</p></article><article><span>Suggested activity</span><strong>Natural Dye Workshop + Local Lunch</strong></article></div>
+        <div className="output-impact"><span>Expected result</span><strong>+42 visitors</strong><strong>+68,000 บาท</strong><strong>8 households</strong></div>
+      </div>
+    </section>
+  </div>;
+}
+
+function AdaptiveExperiencePlanner() {
+  const [interest, setInterest] = useState("Wellness");
+  const [planned, setPlanned] = useState(false);
+  return <div className="product-workspace">
+    <header className="workspace-identity"><div><p className="eyebrow">03 · For travelers</p><h1>Adaptive Experience Planner</h1></div><p>แนะนำประสบการณ์ตามความสนใจ สภาพอากาศ และฤดูกาล พร้อมกระจายการเดินทางไปยังชุมชนที่มีศักยภาพ</p></header>
+    <section className="planner-hero">
+      <div className="planner-question"><p className="eyebrow">Build around how you want to feel</p><h2>คุณอยากได้<br />ประสบการณ์แบบไหน</h2><div className="interest-pills">{["Wellness","Craft","Food","Nature"].map(item => <button key={item} className={interest === item ? "active" : ""} onClick={() => { setInterest(item); setPlanned(false); }}>{item}</button>)}</div><button className="primary-action" onClick={() => setPlanned(true)}>{planned ? "Experience plan ready ✓" : "Plan my experience"}</button></div>
+      <div className="adaptive-signals"><p className="eyebrow">Live conditions</p><div><span>Weather</span><strong>ฝนหยุดพรุ่งนี้</strong><small>เหมาะกับ forest route</small></div><div><span>Season</span><strong>Herbal green season</strong><small>วัตถุดิบพร้อมที่สุด</small></div><div><span>Tourism pulse</span><strong>เวียงสา capacity พร้อม</strong><small>ปัวหนาแน่นกว่าปกติ</small></div></div>
+    </section>
+    <section className={`experience-plan ${planned ? "ready" : ""}`}>
+      <div className="plan-title"><p className="eyebrow">AI recommends · {interest}</p><h2>Forest Reset Journey</h2><p>ประสบการณ์ 2 วัน 1 คืน ที่เปลี่ยนเส้นทางจากพื้นที่หนาแน่นไปยังสันติสุขและเวียงสา</p></div>
+      <ol><li><span>01</span><div><strong>Forest Therapy</strong><small>สันติสุข · 09:00</small></div></li><li><span>02</span><div><strong>Herbal Local Lunch</strong><small>ครัวเรือนแม่คำ · 12:30</small></div></li><li><span>03</span><div><strong>Natural Dye Workshop</strong><small>เวียงสา · 15:00</small></div></li><li><span>04</span><div><strong>Community Homestay</strong><small>บ้านดอนไชย · Overnight</small></div></li></ol>
+      <div className="plan-impact"><p>Trip impact</p><strong>2</strong><span>communities</span><strong>6</strong><span>local businesses</span><strong>+1</strong><span>night in Nan</span></div>
+    </section>
+  </div>;
+}
+
 export function NanPulseApp() {
   const [view, setView] = useState<View>("mission");
   const current = useMemo(() => views.find((item) => item.id === view) ?? views[0], [view]);
@@ -291,13 +349,11 @@ export function NanPulseApp() {
       </aside>
 
       <section className="main-area">
-        <header className="topbar"><div><span className="mobile-mark">N</span><p>{current.label}</p></div><div className="topbar-actions"><button aria-label="การแจ้งเตือน">●<span>2</span></button><div className="profile"><span>NP</span><div><strong>ทีมยุทธศาสตร์ท่องเที่ยว</strong><small>จังหวัดน่าน</small></div></div></div></header>
+        <header className="topbar"><div><span className="mobile-mark">N</span><p>{current.label}</p></div><div className="topbar-actions"><button aria-label="การแจ้งเตือน">●<span>2</span></button><div className="profile"><span>NP</span><div><strong>{view === "mission" ? "ทีมยุทธศาสตร์ท่องเที่ยว" : view === "copilot" ? "เครือข่ายชุมชนน่าน" : "Nan Explorer"}</strong><small>{view === "mission" ? "จังหวัดน่าน" : view === "copilot" ? "Local operator workspace" : "Adaptive journey"}</small></div></div></div></header>
         <div className="content-area">
-          {view === "mission" && <MissionView onNavigate={setView} />}
-          {view === "community" && <CommunityView />}
-          {view === "opportunity" && <OpportunityView />}
-          {view === "forecast" && <ForecastView />}
-          {view === "impact" && <ImpactView />}
+          {view === "mission" && <MissionControl />}
+          {view === "copilot" && <CommunityCopilot />}
+          {view === "planner" && <AdaptiveExperiencePlanner />}
         </div>
       </section>
     </main>
