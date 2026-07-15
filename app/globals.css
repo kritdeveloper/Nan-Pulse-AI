@@ -435,3 +435,39 @@ button, select { touch-action:manipulation; }
   .decision-hero::after { animation-duration:8.5s; }
   .feed-story:hover, .kpi-cards article:hover, .metric-cards article:hover { transform:none; }
 }
+
+/* Localization controls and Thai-first typography. */
+.topbar-tools { display:flex; align-items:center; gap:14px; }
+.locale-switch { display:flex; gap:3px; padding:3px; border:1px solid var(--line); border-radius:20px; background:rgba(255,255,255,.72); }
+.locale-switch button { min-width:38px; height:28px; border:0; border-radius:16px; background:transparent; color:var(--muted); cursor:pointer; font-size:9px; font-weight:800; transition:.2s ease; }
+.locale-switch button.active { background:var(--deep); color:white; box-shadow:0 4px 12px rgba(21,62,52,.18); }
+.locale-switch button:active { transform:scale(.96); }
+
+[data-locale="th"] { font-family:"Noto Sans Thai","Thonburi","Leelawadee UI",Tahoma,Arial,sans-serif; }
+[data-locale="th"] h1, [data-locale="th"] h2, [data-locale="th"] h3,
+[data-locale="th"] .decision-hero h1, [data-locale="th"] .content-header h1,
+[data-locale="th"] .workspace-identity h1, [data-locale="th"] .planner-question h2,
+[data-locale="th"] .seasonal-intro h2, [data-locale="th"] .twin-head h2,
+[data-locale="th"] .receipt-head h2, [data-locale="th"] .mission-statement h2,
+[data-locale="th"] .health-copy h2, [data-locale="th"] .output-head h2,
+[data-locale="th"] .plan-title h2 { font-family:"Noto Sans Thai","Thonburi","Leelawadee UI",Tahoma,Arial,sans-serif !important; font-weight:650; letter-spacing:-.025em; line-height:1.18; }
+[data-locale="th"] .killer-moment h1 { line-height:1.2; }
+[data-locale="th"] p, [data-locale="th"] small, [data-locale="th"] label { line-height:1.72; }
+[data-locale="th"] .eyebrow, [data-locale="th"] .topbar p, [data-locale="th"] .topbar-purpose,
+[data-locale="th"] .signal span:not(.signal-dot), [data-locale="th"] .receipt-final span,
+[data-locale="th"] .campaign-brief span, [data-locale="th"] .plan-impact p,
+[data-locale="th"] .decision-confidence span { text-transform:none; letter-spacing:.035em; }
+[data-locale="th"] .sidebar nav strong { font-weight:650; }
+[data-locale="th"] .workspace-tabs button { font-size:10px; font-weight:650; }
+[data-locale="th"] .decision-copy, [data-locale="th"] .workspace-identity > p, [data-locale="th"] .content-header > p { line-height:1.85; }
+
+@media (max-width:760px) {
+  .topbar-tools { gap:8px; }
+  .locale-switch button { min-width:36px; height:27px; }
+  [data-locale="th"] .sidebar nav button strong { font-size:9px; }
+}
+@media (max-width:520px) {
+  .topbar-tools .topbar-purpose { display:none; }
+  .topbar-tools { margin-left:auto; }
+  [data-locale="th"] .killer-moment h1 { font-size:clamp(27px,8.2vw,34px); }
+}

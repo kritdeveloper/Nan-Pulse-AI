@@ -1,9 +1,17 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 type View = "mission" | "copilot" | "planner";
 type MissionSection = "today" | "opportunities" | "twin" | "forecast" | "impact" | "evaluation";
+type Locale = "th" | "en";
+
+const LocaleContext = createContext<Locale>("th");
+const localize = (locale: Locale, th: string, en: string) => locale === "th" ? th : en;
+function useLocale() {
+  const locale = useContext(LocaleContext);
+  return { locale, tr: (th: string, en: string) => localize(locale, th, en) };
+}
 
 const views: Array<{ id: View; label: string; note: string; mark: string }> = [
   { id: "mission", label: "Mission Control", note: "For tourism authorities", mark: "◎" },
@@ -60,13 +68,16 @@ function Signal({ label, value, tone = "good" }: { label: string; value: string;
 }
 
 function DecisionConfidence({ value, factors = ["Weather", "Demand", "Season", "Community"], dark = false }: { value: number; factors?: string[]; dark?: boolean }) {
+  const { locale, tr } = useLocale();
+  const factorNames: Record<string, string> = { Weather: "อากาศ", Demand: "ความต้องการ", Season: "ฤดูกาล", Community: "ชุมชน", Capacity: "ขีดความสามารถ", "Community Need": "ความต้องการชุมชน", "Community Capacity": "ขีดความสามารถชุมชน", "Traveler Fit": "ความเหมาะสมกับผู้เดินทาง" };
   return <div className={`decision-confidence ${dark ? "confidence-dark" : ""}`}>
-    <div><span>AI Confidence</span><strong>{value}%</strong></div>
-    <div><span>Based on</span><p>{factors.map(factor => <b key={factor}>{factor}</b>)}</p></div>
+    <div><span>{tr("ความเชื่อมั่นของ AI", "AI Confidence")}</span><strong>{value}%</strong></div>
+    <div><span>{tr("พิจารณาจาก", "Based on")}</span><p>{factors.map(factor => <b key={factor}>{locale === "th" ? factorNames[factor] ?? factor : factor}</b>)}</p></div>
   </div>;
 }
 
 function MissionView({ onNavigate }: { onNavigate: () => void }) {
+  const { tr } = useLocale();
   const [executed, setExecuted] = useState(false);
   const [flowActive, setFlowActive] = useState(false);
   const [capacity, setCapacity] = useState<60 | 0>(60);
@@ -74,65 +85,65 @@ function MissionView({ onNavigate }: { onNavigate: () => void }) {
     community: "เวียงสา", confidence: 94, households: 18, businesses: 7, campaign: "Wiang Sa Textile Week",
     visitors: 42, income: "120,000", stay: "+0.6 วัน", receipt: "NP-2026-0715-008",
     need: "Need Craft Learners", season: "ช่วงเรียนรู้ผ้าทอ", before: "เวียงสา 3%", after: "เวียงสา 18%", originAfter: "ปัว 55%",
-    reason: "เวียงสามี Need สูง ประสบการณ์เหมาะกับฤดูกาล และยังรองรับ Demand เพิ่มได้โดยไม่เกิน Capacity ส่วนปัวถูกตัดออกเพราะความหนาแน่นสูง"
+    reason: tr("เวียงสามีความต้องการสูง ประสบการณ์เหมาะกับฤดูกาล และยังรองรับนักท่องเที่ยวเพิ่มได้โดยไม่เกินขีดความสามารถ ส่วนปัวถูกตัดออกเพราะความหนาแน่นสูง", "Wiang Sa has high community need, strong seasonal fit, and available capacity. Pua was rejected because visitor density is already high.")
   } : {
     community: "สันติสุข", confidence: 87, households: 12, businesses: 5, campaign: "Forest Wellness Pilot",
     visitors: 28, income: "78,000", stay: "+0.8 วัน", receipt: "NP-2026-0715-009",
     need: "Need Wellness Travelers", season: "Green season wellness", before: "สันติสุข 5%", after: "สันติสุข 14%", originAfter: "ปัว 63%",
-    reason: "Capacity เวียงสาเหลือ 0 คน ระบบจึงหยุดแคมเปญเดิมและเลือกสันติสุข ซึ่งมี Need สูง อากาศเหมาะกับกิจกรรมสุขภาพ และยังรองรับนักท่องเที่ยวได้"
+    reason: tr("ขีดความสามารถของเวียงสาเหลือ 0 คน ระบบจึงหยุดแคมเปญเดิมและเลือกสันติสุข ซึ่งมีความต้องการสูง อากาศเหมาะกับกิจกรรมสุขภาพ และยังรองรับนักท่องเที่ยวได้", "Wiang Sa capacity dropped to zero, so AI stopped the original campaign and selected Santisuk for its high need, wellness weather fit, and available capacity.")
   };
   const alternatives = capacity === 60 ? [
-    { rank: "01", place: "เวียงสา", score: "94%", state: "Selected", reason: "Need สูง · Capacity 60 · ฤดูกาลเหมาะสม", tone: "selected" },
-    { rank: "02", place: "สันติสุข", score: "87%", state: "Alternative", reason: "พร้อมรับ Wellness travelers แต่ Demand gap ต่ำกว่า", tone: "" },
-    { rank: "03", place: "ปัว", score: "42%", state: "Rejected", reason: "Tourist density 80% · ไม่ควรเพิ่มความหนาแน่น", tone: "" },
-    { rank: "04", place: "บ่อเกลือ", score: "38%", state: "Rejected", reason: "Weather risk สูงกว่าค่าที่กำหนด", tone: "" }
+    { rank: "01", place: "เวียงสา", score: "94%", state: tr("เลือก", "Selected"), reason: tr("ความต้องการสูง · รองรับได้ 60 คน · ฤดูกาลเหมาะสม", "High need · Capacity 60 · Strong seasonal fit"), tone: "selected" },
+    { rank: "02", place: "สันติสุข", score: "87%", state: tr("ทางเลือก", "Alternative"), reason: tr("พร้อมรับกลุ่มสุขภาพ แต่ช่องว่างความต้องการต่ำกว่า", "Ready for wellness travelers, but with a smaller demand gap"), tone: "" },
+    { rank: "03", place: "ปัว", score: "42%", state: tr("ไม่เลือก", "Rejected"), reason: tr("ความหนาแน่น 80% · ไม่ควรเพิ่มนักท่องเที่ยว", "Visitor density 80% · Avoid adding pressure"), tone: "" },
+    { rank: "04", place: "บ่อเกลือ", score: "38%", state: tr("ไม่เลือก", "Rejected"), reason: tr("ความเสี่ยงด้านอากาศสูงกว่าเกณฑ์", "Weather risk exceeds the threshold"), tone: "" }
   ] : [
-    { rank: "01", place: "สันติสุข", score: "87%", state: "Selected", reason: "Need สูง · อากาศเหมาะ · มี Capacity พร้อม", tone: "selected" },
-    { rank: "02", place: "เวียงสา", score: "0%", state: "Blocked", reason: "Capacity เปลี่ยนเป็น 0 · ห้ามส่งนักท่องเที่ยวเพิ่ม", tone: "blocked" },
-    { rank: "03", place: "ปัว", score: "42%", state: "Rejected", reason: "Tourist density 80% · ไม่ควรเพิ่มความหนาแน่น", tone: "" },
-    { rank: "04", place: "บ่อเกลือ", score: "38%", state: "Rejected", reason: "Weather risk สูงกว่าค่าที่กำหนด", tone: "" }
+    { rank: "01", place: "สันติสุข", score: "87%", state: tr("เลือก", "Selected"), reason: tr("ความต้องการสูง · อากาศเหมาะ · รองรับได้", "High need · Good weather · Capacity available"), tone: "selected" },
+    { rank: "02", place: "เวียงสา", score: "0%", state: tr("ระงับ", "Blocked"), reason: tr("ขีดความสามารถเหลือ 0 · ห้ามส่งนักท่องเที่ยวเพิ่ม", "Capacity changed to zero · No additional travelers"), tone: "blocked" },
+    { rank: "03", place: "ปัว", score: "42%", state: tr("ไม่เลือก", "Rejected"), reason: tr("ความหนาแน่น 80% · ไม่ควรเพิ่มนักท่องเที่ยว", "Visitor density 80% · Avoid adding pressure"), tone: "" },
+    { rank: "04", place: "บ่อเกลือ", score: "38%", state: tr("ไม่เลือก", "Rejected"), reason: tr("ความเสี่ยงด้านอากาศสูงกว่าเกณฑ์", "Weather risk exceeds the threshold"), tone: "" }
   ];
   const changeCapacity = (value: 60 | 0) => { setCapacity(value); setExecuted(false); setFlowActive(false); };
   return (
     <div className="view-stack">
       <section className={`decision-hero killer-moment ${executed ? "mission-executed" : ""}`} aria-labelledby="today-decision">
         <div className="moment-status">
-          <span><i aria-hidden="true">✦</i> Nan Pulse AI · New Opportunity Detected</span>
-          <em>Demo Simulation · ไม่มีการส่งข้อมูลจริง</em>
+          <span><i aria-hidden="true">✦</i> {tr("Nan Pulse AI · พบโอกาสใหม่", "Nan Pulse AI · New Opportunity Detected")}</span>
+          <em>{tr("การจำลองเพื่อสาธิต · ไม่มีการส่งข้อมูลจริง", "Demo simulation · No real data is sent")}</em>
         </div>
         <div className="decision-topline decision-refresh" key={decision.community}>
           <div>
-            <p className="eyebrow">AI Mission · {decision.community} · This week</p>
-            {capacity === 0 && <span className="decision-change-badge">Decision changed · Capacity signal updated</span>}
-            <h1 id="today-decision">ผมพบโอกาสใหม่ที่จะช่วยสร้างรายได้ให้ {decision.households} ครัวเรือนใน{decision.community}สัปดาห์นี้</h1>
+            <p className="eyebrow">{tr("ภารกิจ AI", "AI Mission")} · {decision.community} · {tr("สัปดาห์นี้", "This week")}</p>
+            {capacity === 0 && <span className="decision-change-badge">{tr("คำตัดสินเปลี่ยนแล้ว · Capacity มีการอัปเดต", "Decision changed · Capacity signal updated")}</span>}
+            <h1 id="today-decision">{tr(`พบโอกาสสร้างรายได้ให้ ${decision.households} ครัวเรือนใน${decision.community}ภายในสัปดาห์นี้`, `A new opportunity could support ${decision.households} households in ${decision.community} this week`)}</h1>
           </div>
           <div className="confidence-ring" aria-label={`AI confidence ${decision.confidence} percent`}>
             <span>{decision.confidence}</span><small>%</small>
-            <em>confidence</em>
+            <em>{tr("ความเชื่อมั่น", "confidence")}</em>
           </div>
         </div>
 
-        <p className="decision-copy">คุณต้องการให้ผม <strong>สร้างแคมเปญและปรับเส้นทางนักท่องเที่ยวอัตโนมัติ</strong> หรือไม่?</p>
+        <p className="decision-copy">{tr("ต้องการให้ AI ", "Would you like AI to ")}<strong>{tr("สร้างแคมเปญและปรับเส้นทางนักท่องเที่ยวอัตโนมัติ", "create the campaign and automatically redirect travelers")}</strong>{tr("หรือไม่?", "?")}</p>
         <DecisionConfidence value={decision.confidence} factors={["Weather", "Demand", "Season", "Community", "Capacity"]} dark />
 
         <div className="live-decision-control">
           <div>
-            <p><span className="live-dot" /> Live Decision Change</p>
-            <strong>เปลี่ยน Capacity แล้วดู AI ตัดสินใจใหม่ทันที</strong>
+            <p><span className="live-dot" /> {tr("การเปลี่ยนคำตัดสินแบบทันที", "Live Decision Change")}</p>
+            <strong>{tr("เปลี่ยนขีดความสามารถ แล้วดู AI ตัดสินใจใหม่", "Change capacity and watch AI decide again")}</strong>
           </div>
           <div className="live-signal-row"><span>Weather <b>ฝนหยุดพรุ่งนี้</b></span><span>Demand <b>สูง</b></span><span>Season <b>Green season</b></span></div>
           <div className="capacity-toggle" role="group" aria-label="เปลี่ยน capacity ของเวียงสา">
-            <small>Wiang Sa Capacity</small>
-            <button className={capacity === 60 ? "active" : ""} onClick={() => changeCapacity(60)}>60 คน</button>
-            <button className={capacity === 0 ? "active danger" : ""} onClick={() => changeCapacity(0)}>0 คน</button>
+            <small>{tr("ขีดความสามารถเวียงสา", "Wiang Sa Capacity")}</small>
+            <button className={capacity === 60 ? "active" : ""} onClick={() => changeCapacity(60)}>60 {tr("คน", "people")}</button>
+            <button className={capacity === 0 ? "active danger" : ""} onClick={() => changeCapacity(0)}>0 {tr("คน", "people")}</button>
           </div>
         </div>
 
         <div className="decision-actions">
           <button className="primary-action execute-action" onClick={() => setExecuted(true)} disabled={executed}>
-            {executed ? "Mission Executed ✓" : "Execute Mission"}
+            {executed ? tr("ดำเนินภารกิจแล้ว ✓", "Mission Executed ✓") : tr("ดำเนินภารกิจ", "Execute Mission")}
           </button>
-          {!executed && <button className="text-action" onClick={onNavigate}>ตรวจสอบโอกาสก่อน <span>→</span></button>}
+          {!executed && <button className="text-action" onClick={onNavigate}>{tr("ตรวจสอบโอกาสก่อน", "Review opportunity first")} <span>→</span></button>}
         </div>
 
         <div className="execution-console" aria-live="polite">
@@ -157,12 +168,12 @@ function MissionView({ onNavigate }: { onNavigate: () => void }) {
 
       <section className="decision-receipt" aria-labelledby="receipt-title">
         <div className="receipt-head">
-          <div><p className="eyebrow">Decision Receipt</p><h2 id="receipt-title">AI เลือกอะไร — และไม่เลือกอะไร</h2></div>
-          <div><span>Decision ID</span><strong>{decision.receipt}</strong><small>15 ก.ค. 2569 · 08:30</small></div>
+          <div><p className="eyebrow">{tr("บันทึกคำตัดสิน", "Decision Receipt")}</p><h2 id="receipt-title">{tr("AI เลือกอะไร และไม่เลือกอะไร", "What AI selected — and rejected")}</h2></div>
+          <div><span>{tr("รหัสคำตัดสิน", "Decision ID")}</span><strong>{decision.receipt}</strong><small>{tr("15 ก.ค. 2569", "15 Jul 2026")} · 08:30</small></div>
         </div>
         <div className="receipt-grid">
           <div className="receipt-signals">
-            <h3>Observed signals</h3>
+            <h3>{tr("สัญญาณที่ตรวจพบ", "Observed signals")}</h3>
             <div><span>Weather</span><strong>88</strong><i><b style={{ width: "88%" }} /></i><small>ฝนหยุดพรุ่งนี้</small></div>
             <div><span>Community Need</span><strong>95</strong><i><b style={{ width: "95%" }} /></i><small>ต้องการนักท่องเที่ยวเฉพาะกลุ่ม</small></div>
             <div><span>Demand Gap</span><strong>91</strong><i><b style={{ width: "91%" }} /></i><small>ต่ำกว่าเป้าหมาย</small></div>
@@ -170,17 +181,17 @@ function MissionView({ onNavigate }: { onNavigate: () => void }) {
             <div className={capacity === 0 ? "signal-blocked" : ""}><span>Wiang Sa Capacity</span><strong>{capacity}</strong><i><b style={{ width: `${capacity}%` }} /></i><small>{capacity === 0 ? "สัญญาณเปลี่ยน · ระบบห้ามเลือก" : "รองรับได้อีก 60 คน"}</small></div>
           </div>
           <div className="alternatives">
-            <h3>Ranked alternatives</h3>
+            <h3>{tr("ทางเลือกตามลำดับ", "Ranked alternatives")}</h3>
             {alternatives.map(item => <article className={item.tone} key={item.place}>
               <b>{item.rank}</b><div><strong>{item.place}</strong><small>{item.reason}</small></div><em>{item.score}</em><span>{item.state}</span>
             </article>)}
           </div>
         </div>
         <div className="receipt-final">
-          <div><span>Final decision</span><strong>เปิดแคมเปญ “{decision.campaign}” และ redirect {decision.visitors} คนไป{decision.community}</strong><small>{decision.reason}</small></div>
-          <div><span>Control</span><strong>Human approval required</strong><small>AI เตรียมการตัดสินใจ แต่จังหวัดต้องกด Execute ก่อนดำเนินการ</small></div>
+          <div><span>{tr("คำตัดสินสุดท้าย", "Final decision")}</span><strong>{tr(`เปิดแคมเปญ “${decision.campaign}” และส่งนักท่องเที่ยว ${decision.visitors} คนไป${decision.community}`, `Launch “${decision.campaign}” and redirect ${decision.visitors} travelers to ${decision.community}`)}</strong><small>{decision.reason}</small></div>
+          <div><span>{tr("การควบคุม", "Control")}</span><strong>{tr("ต้องได้รับการอนุมัติจากเจ้าหน้าที่", "Human approval required")}</strong><small>{tr("AI เตรียมคำตัดสิน แต่จังหวัดต้องอนุมัติก่อนดำเนินการ", "AI prepares the decision, but the province must approve execution")}</small></div>
         </div>
-        <div className="counterfactuals"><strong>What would change this decision?</strong><span>ฝน &gt; 70% → เลื่อนแคมเปญ</span><span>Capacity &lt; 20 → เลือกชุมชนถัดไป</span><span>PM2.5 สูง → เปลี่ยนเป็นกิจกรรมในร่ม</span><span>ปัว density &lt; 50% → ลดการ redirect</span></div>
+        <div className="counterfactuals"><strong>{tr("อะไรจะทำให้คำตัดสินเปลี่ยน?", "What would change this decision?")}</strong><span>{tr("ฝน", "Rain")} &gt; 70% → {tr("เลื่อนแคมเปญ", "delay campaign")}</span><span>Capacity &lt; 20 → {tr("เลือกชุมชนถัดไป", "select next community")}</span><span>PM2.5 {tr("สูง → เปลี่ยนเป็นกิจกรรมในร่ม", "high → switch indoors")}</span><span>{tr("ความหนาแน่นปัว", "Pua density")} &lt; 50% → {tr("ลดการส่งต่อ", "reduce redirect")}</span></div>
         <p className="receipt-disclaimer">Demo Decision Engine · คะแนนและผลกระทบเป็น Prototype simulation เพื่อแสดงตรรกะการตัดสินใจ ไม่ใช่ผลจากโมเดล production</p>
       </section>
 
@@ -245,13 +256,14 @@ function MissionView({ onNavigate }: { onNavigate: () => void }) {
 }
 
 function CommunityView() {
+  const { tr } = useLocale();
   const [selected, setSelected] = useState(0);
   const mission = communityMissions[selected];
   return (
     <div className="view-stack">
       <header className="content-header">
-        <div><p className="eyebrow">Community Mission</p><h1>ชุมชนต้องการ<br />นักท่องเที่ยวแบบไหน</h1></div>
-        <p>AI แปล Need ของชุมชนให้เป็นกลุ่มผู้เดินทางที่เหมาะสม พร้อมกำหนดช่วงเวลาโดยไม่เกินขีดความสามารถ</p>
+        <div><p className="eyebrow">{tr("ภารกิจชุมชน", "Community Mission")}</p><h1>{tr("ชุมชนต้องการ", "Who the community")}<br />{tr("นักท่องเที่ยวแบบไหน", "needs right now")}</h1></div>
+        <p>{tr("AI แปลความต้องการของชุมชนเป็นกลุ่มผู้เดินทางที่เหมาะสม พร้อมกำหนดช่วงเวลาโดยไม่เกินขีดความสามารถ", "AI translates community needs into the right traveler segments and timing without exceeding local capacity.")}</p>
       </header>
       <section className="community-mission">
         <div className="community-selector" aria-label="เลือกชุมชน">
@@ -271,6 +283,7 @@ function CommunityView() {
 }
 
 function OpportunityView() {
+  const { tr } = useLocale();
   const [selected, setSelected] = useState(7);
   const [generated, setGenerated] = useState<string | null>(null);
   const [exchangeFilter, setExchangeFilter] = useState("All opportunities");
@@ -279,8 +292,8 @@ function OpportunityView() {
   return (
     <div className="view-stack">
       <header className="content-header compact">
-        <div><p className="eyebrow">AI Opportunity Exchange</p><h1>โอกาสที่จังหวัด<br />ยังไม่ได้ใช้</h1></div>
-        <p>พื้นที่ทำงานสำหรับจังหวัด ไม่ใช่หน้าค้นหาของนักท่องเที่ยว AI ตรวจจับ resource ที่พร้อม แต่ยังขาด demand, promotion หรือจังหวะลงมือทำ</p>
+        <div><p className="eyebrow">{tr("ศูนย์แลกเปลี่ยนโอกาส AI", "AI Opportunity Exchange")}</p><h1>{tr("โอกาสของจังหวัด", "Opportunities Nan")}<br />{tr("ที่ยังไม่ได้ใช้", "has not activated")}</h1></div>
+        <p>{tr("พื้นที่ตัดสินใจสำหรับจังหวัด AI ตรวจพบทรัพยากรที่พร้อม แต่ยังขาดความต้องการ การประชาสัมพันธ์ หรือจังหวะลงมือทำ", "A provincial decision space where AI detects ready resources that still lack demand, promotion, or timely action.")}</p>
       </header>
       <section className="exchange-summary" aria-label="สรุปโอกาสที่ยังไม่ถูกใช้">
         <div><span>Unused opportunities</span><strong>12</strong><small>ตรวจพบทั่วจังหวัด</small></div>
@@ -335,11 +348,12 @@ function OpportunityView() {
 }
 
 function ForecastView() {
+  const { tr } = useLocale();
   return (
     <div className="view-stack">
       <header className="content-header compact">
-        <div><p className="eyebrow">Tourism Pulse</p><h1>Tourism Health<br />ไม่ใช่ Visitor Count</h1></div>
-        <p>สุขภาพการท่องเที่ยววัดจากความสมดุลของฤดูกาล พื้นที่ รายได้ และ capacity ไม่ใช่การเพิ่มจำนวนนักท่องเที่ยวอย่างเดียว</p>
+        <div><p className="eyebrow">{tr("ชีพจรการท่องเที่ยว", "Tourism Pulse")}</p><h1>{tr("สุขภาวะการท่องเที่ยว", "Tourism Health")}<br />{tr("ไม่ใช่แค่จำนวนนักท่องเที่ยว", "Not Visitor Count")}</h1></div>
+        <p>{tr("สุขภาวะการท่องเที่ยววัดจากความสมดุลของฤดูกาล พื้นที่ รายได้ และขีดความสามารถ ไม่ใช่การเพิ่มจำนวนผู้เดินทางเพียงอย่างเดียว", "Tourism health measures balance across seasons, places, income, and capacity—not visitor volume alone.")}</p>
       </header>
       <section className="health-card">
         <div className="health-score" aria-label="Tourism health 78 percent"><span>78</span><small>%</small></div>
@@ -364,6 +378,7 @@ function ForecastView() {
 }
 
 function ImpactView() {
+  const { tr } = useLocale();
   const kpis = [
     { number: "01", title: "Increase Off-Season Experiences", description: "เพิ่มกิจกรรมที่ดึงดูดนักท่องเที่ยวในเดือนที่ไม่ใช่ High Season", value: "38", unit: "experiences", target: "เป้าหมาย 50", progress: 76, change: "+12 ไตรมาสนี้", measure: "จำนวนกิจกรรมที่เปิดขายหรือจัดจริงใน 8 เดือนนอกฤดูพีค" },
     { number: "02", title: "Increase Community Participation", description: "เพิ่มจำนวนชุมชนและผู้ประกอบการที่เข้าร่วมและสร้างกิจกรรมผ่านระบบ", value: "31", unit: "communities", target: "เป้าหมาย 40", progress: 78, change: "+9 ชุมชน", measure: "ชุมชนที่มี Need, Capacity และกิจกรรม Active อย่างน้อย 1 รายการ" },
@@ -372,8 +387,8 @@ function ImpactView() {
   return (
     <div className="view-stack">
       <header className="content-header compact">
-        <div><p className="eyebrow">Three North-star KPIs</p><h1>วัดเพียง 3 สิ่ง<br />ที่เปลี่ยนน่านจริง</h1></div>
-        <p>ทุก Decision, Campaign และ Impact ใน Nan Pulse AI ต้องขยับ KPI อย่างน้อยหนึ่งข้อ โดยไม่เพิ่มตัวชี้วัดหลักอื่นมารบกวนทิศทาง</p>
+        <div><p className="eyebrow">{tr("3 ตัวชี้วัดหลัก", "Three North-star KPIs")}</p><h1>{tr("วัดเพียง 3 สิ่ง", "Three measures")}<br />{tr("ที่เปลี่ยนน่านได้จริง", "that truly change Nan")}</h1></div>
+        <p>{tr("ทุกคำตัดสิน แคมเปญ และผลกระทบ ต้องขยับตัวชี้วัดหลักอย่างน้อยหนึ่งข้อ เพื่อรักษาทิศทางของผลิตภัณฑ์ให้ชัดเจน", "Every decision, campaign, and impact must move at least one core KPI to keep the product focused.")}</p>
       </header>
       <section className="kpi-cards" aria-label="ตัวชี้วัดหลักของ Nan Pulse AI">
         {kpis.map(kpi => <article key={kpi.number}>
@@ -412,15 +427,17 @@ function ImpactView() {
 }
 
 function OfficialDataSources() {
+  const { tr } = useLocale();
   return <section className="source-register">
-    <div className="source-register-head"><div><p className="eyebrow">Data Provenance</p><h2>แหล่งข้อมูลที่ใช้ตัดสินใจ</h2></div><p>Official data และ AI estimates ถูกแยกจากกันอย่างชัดเจน ระบบไม่แสดงค่าคาดการณ์เป็นสถิติจริง</p></div>
+    <div className="source-register-head"><div><p className="eyebrow">{tr("ที่มาของข้อมูล", "Data Provenance")}</p><h2>{tr("แหล่งข้อมูลที่ใช้ตัดสินใจ", "Decision data sources")}</h2></div><p>{tr("ข้อมูลทางการและค่าประมาณของ AI ถูกแยกจากกันอย่างชัดเจน ระบบไม่แสดงค่าคาดการณ์เป็นสถิติจริง", "Official data and AI estimates remain clearly separated. Forecasts are never presented as actual statistics.")}</p></div>
     <div className="source-grid">{officialSources.map((source, index) => <a key={source.name} href={source.url} target="_blank" rel="noreferrer"><span>0{index + 1}</span><div><strong>{source.name}</strong><small>{source.use}</small></div><em>{source.status}</em><b>↗</b></a>)}</div>
   </section>;
 }
 
 function ValidationLearning() {
+  const { tr } = useLocale();
   return <div className="view-stack">
-    <header className="content-header compact"><div><p className="eyebrow">Validation & Learning · Design Thinking + Agile</p><h1>จากปัญหา<br />สู่หลักฐานที่วัดได้</h1></div><p>Nan Pulse AI แยกสิ่งที่รู้จริง สิ่งที่ AI คาดการณ์ และสิ่งที่ยังต้องพิสูจน์ภาคสนาม เพื่อให้ Prototype เติบโตเป็นระบบที่ชุมชนใช้งานได้จริง</p></header>
+    <header className="content-header compact"><div><p className="eyebrow">{tr("การทดสอบและการเรียนรู้ · Design Thinking + Agile", "Validation & Learning · Design Thinking + Agile")}</p><h1>{tr("จากปัญหา", "From problem")}<br />{tr("สู่หลักฐานที่วัดได้", "to measurable evidence")}</h1></div><p>{tr("Nan Pulse AI แยกสิ่งที่รู้จริง สิ่งที่ AI คาดการณ์ และสิ่งที่ยังต้องพิสูจน์ภาคสนาม เพื่อให้ต้นแบบเติบโตเป็นระบบที่ชุมชนใช้ได้จริง", "Nan Pulse AI separates verified facts, AI estimates, and field assumptions so the prototype can grow into a system communities can truly use.")}</p></header>
 
     <section className="design-thinking-evidence" aria-labelledby="design-thinking-title">
       <div className="evidence-section-head"><div><p className="eyebrow">Design Thinking Summary</p><h2 id="design-thinking-title">เริ่มจากผู้ใช้ ไม่ได้เริ่มจาก Feature</h2></div><span>Problem → Insight → Prototype → Test</span></div>
@@ -473,6 +490,7 @@ function ValidationLearning() {
 }
 
 function TourismDigitalTwin() {
+  const { tr } = useLocale();
   const scenarios = [
     { id: "coffee", name: "โปรโมตกาแฟเดือนกรกฎาคม", note: "Coffee Harvest · 20–31 Jul", visitors: "+62 คน", income: "+280K บาท", stay: "+0.8 วัน", communities: "4 ชุมชน", households: "23 ครัวเรือน", risk: "ปานกลาง", riskTone: "medium", riskDetail: "ฝน 35% · ต้องกระจายรอบเข้าชมไม่เกิน 12 คน", pua: 55, wiangsa: 18, confidence: 88 },
     { id: "textile", name: "โปรโมตผ้าทอช่วง Green Season", note: "Textile Learning · 14 days", visitors: "+46 คน", income: "+190K บาท", stay: "+0.5 วัน", communities: "3 ชุมชน", households: "18 ครัวเรือน", risk: "ต่ำ", riskTone: "low", riskDetail: "Capacity พร้อม · ต้องยืนยันวิทยากร 2 กลุ่ม", pua: 62, wiangsa: 15, confidence: 91 },
@@ -481,7 +499,7 @@ function TourismDigitalTwin() {
   const [selected, setSelected] = useState<string | null>(null);
   const active = scenarios.find(item => item.id === selected);
   return <div className="view-stack">
-    <header className="content-header compact"><div><p className="eyebrow">One Killer Feature · AI Opportunity Simulator</p><h1>ทดลองโอกาส<br />ก่อนตัดสินใจจริง</h1></div><p>จังหวัดเลือกสิ่งที่ต้องการโปรโมต แล้ว AI จำลองผลต่อนักท่องเที่ยว รายได้ ชุมชน และความเสี่ยงทันที—นี่คือระบบตัดสินใจ ไม่ใช่ Trip Planner</p></header>
+    <header className="content-header compact"><div><p className="eyebrow">{tr("ฟีเจอร์หลัก · เครื่องจำลองโอกาส AI", "Core Feature · AI Opportunity Simulator")}</p><h1>{tr("ทดลองโอกาส", "Simulate opportunity")}<br />{tr("ก่อนตัดสินใจจริง", "before taking action")}</h1></div><p>{tr("จังหวัดเลือกสิ่งที่ต้องการส่งเสริม แล้ว AI จำลองผลต่อนักท่องเที่ยว รายได้ ชุมชน และความเสี่ยงทันที นี่คือระบบตัดสินใจ ไม่ใช่ระบบวางแผนเที่ยว", "The province selects what to promote, and AI immediately simulates visitors, income, communities, and risk. This is a decision system—not a trip planner.")}</p></header>
     <section className="twin-workbench">
       <div className="campaign-dock"><p className="eyebrow">Opportunity scenarios</p><h2>จังหวัดต้องการ<br />ทดลองอะไร?</h2><div>{scenarios.map((item, index) => <button draggable key={item.id} onDragStart={event => event.dataTransfer.setData("campaign", item.id)} onClick={() => setSelected(item.id)} className={selected === item.id ? "active" : ""}><span>0{index + 1}</span><strong>{item.name}</strong><small>{item.note} · Run simulation →</small></button>)}</div><p>กด Scenario เพื่อให้ AI ประเมินผลทันที หรือจะลากลงพื้นที่จำลองก็ได้</p></div>
       <div className={`twin-stage ${active ? "has-scenario" : ""}`} onDragOver={event => event.preventDefault()} onDrop={event => { event.preventDefault(); setSelected(event.dataTransfer.getData("campaign")); }}>
@@ -500,20 +518,21 @@ function TourismDigitalTwin() {
 }
 
 function MissionControl() {
+  const { tr } = useLocale();
   const [section, setSection] = useState<MissionSection>("today");
   const sections: Array<{ id: MissionSection; label: string }> = [
-    { id: "today", label: "Today’s Decision" },
-    { id: "opportunities", label: "Opportunity & Campaign" },
-    { id: "twin", label: "AI Opportunity Simulator" },
-    { id: "forecast", label: "Tourism Health" },
-    { id: "impact", label: "KPI & Impact" },
-    { id: "evaluation", label: "Validation & Learning" },
+    { id: "today", label: tr("คำตัดสินวันนี้", "Today’s Decision") },
+    { id: "opportunities", label: tr("โอกาสและแคมเปญ", "Opportunity & Campaign") },
+    { id: "twin", label: tr("เครื่องจำลองโอกาส AI", "AI Opportunity Simulator") },
+    { id: "forecast", label: tr("สุขภาวะการท่องเที่ยว", "Tourism Health") },
+    { id: "impact", label: tr("ตัวชี้วัดและผลกระทบ", "KPI & Impact") },
+    { id: "evaluation", label: tr("การทดสอบและการเรียนรู้", "Validation & Learning") },
   ];
   return <div className="product-workspace">
-    <nav className="workspace-tabs" aria-label="เครื่องมือ Mission Control">{sections.map(item => <button key={item.id} className={section === item.id ? "active" : ""} onClick={() => setSection(item.id)}>{item.label}</button>)}</nav>
+    <nav className="workspace-tabs" aria-label={tr("เครื่องมือศูนย์บัญชาการ", "Mission Control tools")}>{sections.map(item => <button key={item.id} className={section === item.id ? "active" : ""} onClick={() => setSection(item.id)}>{item.label}</button>)}</nav>
     {section === "today" && <MissionView onNavigate={() => setSection("opportunities")} />}
-    {section !== "today" && <header className="workspace-identity"><div><p className="eyebrow">01 · Provincial Decision System</p><h1>Mission Control</h1></div><p>ระบบตัดสินใจว่า “จังหวัดควรสร้างโอกาสที่ไหน เมื่อไร และให้ใคร” ก่อนส่ง Decision ไปสู่แคมเปญ ชุมชน และการเดินทางจริง</p></header>}
-    {section !== "today" && <section className="decision-doctrine"><div><span>Nan Pulse AI is</span><strong>ระบบการตัดสินใจ</strong></div><b>≠</b><div><span>Nan Pulse AI is not</span><strong>ระบบแนะนำสถานที่</strong></div><ol><li>AI Detects</li><li>Signals</li><li>Campaign</li><li>Redirect</li><li>Impact</li></ol></section>}
+    {section !== "today" && <header className="workspace-identity"><div><p className="eyebrow">01 · {tr("ระบบตัดสินใจระดับจังหวัด", "Provincial Decision System")}</p><h1>{tr("ศูนย์บัญชาการ", "Mission Control")}</h1></div><p>{tr("ระบบตัดสินใจว่าจังหวัดควรสร้างโอกาสที่ไหน เมื่อไร และให้ใคร ก่อนส่งคำตัดสินไปสู่แคมเปญ ชุมชน และการเดินทางจริง", "A system that decides where, when, and for whom Nan should create opportunity—before activating campaigns, communities, and journeys.")}</p></header>}
+    {section !== "today" && <section className="decision-doctrine"><div><span>{tr("Nan Pulse AI คือ", "Nan Pulse AI is")}</span><strong>{tr("ระบบการตัดสินใจ", "a decision system")}</strong></div><b>≠</b><div><span>{tr("Nan Pulse AI ไม่ใช่", "Nan Pulse AI is not")}</span><strong>{tr("ระบบแนะนำสถานที่", "a place recommender")}</strong></div><ol><li>{tr("ตรวจจับ", "Detect")}</li><li>{tr("สัญญาณ", "Signals")}</li><li>{tr("แคมเปญ", "Campaign")}</li><li>{tr("ส่งต่อ", "Redirect")}</li><li>{tr("ผลกระทบ", "Impact")}</li></ol></section>}
     {section === "opportunities" && <OpportunityView />}
     {section === "twin" && <TourismDigitalTwin />}
     {section === "forecast" && <ForecastView />}
@@ -524,25 +543,26 @@ function MissionControl() {
 }
 
 function CommunityCopilot() {
+  const { tr } = useLocale();
   const [community, setCommunity] = useState("เวียงสา");
   const [goal, setGoal] = useState("เพิ่มผู้เข้าร่วมเวิร์กช็อป");
   const [mission, setMission] = useState("Need Coffee Lovers");
   const [created, setCreated] = useState(false);
   const communityNeeds = ["Need Visitors", "Need Promotion", "Need Coffee Lovers", "Need Family Travelers"];
   return <div className="product-workspace">
-    <header className="workspace-identity"><div><p className="eyebrow">02 · Decision Activation for Operators</p><h1>Community Copilot</h1></div><p>รับ Mission ที่จังหวัดตัดสินใจแล้วมาเปลี่ยนเป็นโปรโมชัน เนื้อหาประชาสัมพันธ์ และกิจกรรมที่ชุมชนดำเนินการได้จริง</p></header>
+    <header className="workspace-identity"><div><p className="eyebrow">02 · {tr("เปลี่ยนคำตัดสินเป็นการลงมือทำ", "Decision Activation for Operators")}</p><h1>{tr("ผู้ช่วยชุมชน", "Community Copilot")}</h1></div><p>{tr("รับภารกิจที่จังหวัดตัดสินใจแล้วมาเปลี่ยนเป็นโปรโมชัน เนื้อหาประชาสัมพันธ์ และกิจกรรมที่ชุมชนดำเนินการได้จริง", "Turn the province’s approved mission into promotions, communication content, and activities local operators can deliver.")}</p></header>
     <section className="copilot-layout">
       <div className="copilot-input">
-        <div className="copilot-orb">✦</div><p className="eyebrow">Community speaks first</p><h2>ตอนนี้ฉัน<br />ต้องการอะไร</h2>
+        <div className="copilot-orb">✦</div><p className="eyebrow">{tr("เริ่มจากเสียงของชุมชน", "Community speaks first")}</p><h2>{tr("ตอนนี้ชุมชน", "What does the community")}<br />{tr("ต้องการอะไร", "need right now?")}</h2>
         <div className="community-asks" role="group" aria-label="Community missions">{communityNeeds.map(need => <button key={need} className={mission === need ? "active" : ""} onClick={() => { setMission(need); setCreated(false); }}>{need}</button>)}</div>
-        <label>ชุมชน<select value={community} onChange={e => { setCommunity(e.target.value); setCreated(false); }}><option>เวียงสา</option><option>สันติสุข</option><option>แม่จริม</option></select></label>
-        <label>เป้าหมาย<select value={goal} onChange={e => { setGoal(e.target.value); setCreated(false); }}><option>เพิ่มผู้เข้าร่วมเวิร์กช็อป</option><option>สร้างโปรโมชันช่วง Low Season</option><option>เปิดตัวกิจกรรมใหม่</option></select></label>
+        <label>{tr("ชุมชน", "Community")}<select value={community} onChange={e => { setCommunity(e.target.value); setCreated(false); }}><option>เวียงสา</option><option>สันติสุข</option><option>แม่จริม</option></select></label>
+        <label>{tr("เป้าหมาย", "Goal")}<select value={goal} onChange={e => { setGoal(e.target.value); setCreated(false); }}><option>เพิ่มผู้เข้าร่วมเวิร์กช็อป</option><option>สร้างโปรโมชันช่วง Low Season</option><option>เปิดตัวกิจกรรมใหม่</option></select></label>
         <div className="copilot-context"><span>Season <b>Green season</b></span><span>Demand <b>ต่ำกว่าเป้าหมาย</b></span><span>Capacity <b>เหลือ 60 คน</b></span></div>
-        <button className="primary-action" onClick={() => setCreated(true)}>{created ? "Mission activated ✓" : "Activate this mission"}</button>
+        <button className="primary-action" onClick={() => setCreated(true)}>{created ? tr("เปิดใช้ภารกิจแล้ว ✓", "Mission activated ✓") : tr("เปิดใช้ภารกิจนี้", "Activate this mission")}</button>
       </div>
       <div className={`copilot-output ${created ? "ready" : ""}`}>
         <div className="output-head"><div><p className="eyebrow">Mission response · {mission}</p><h2>{mission === "Need Coffee Lovers" ? "Coffee Route Stories" : "Textile Rain Stories"}</h2></div><span>92% fit</span></div>
-        <p className="output-lead">AI รับฟัง Mission “{mission}” ของ {community} แล้วเปลี่ยนเป็น Campaign ที่สอดคล้องกับฤดูกาลและ capacity ของชุมชน</p>
+        <p className="output-lead">{tr(`AI รับฟังภารกิจ “${mission}” ของ${community} แล้วเปลี่ยนเป็นแคมเปญที่สอดคล้องกับฤดูกาลและขีดความสามารถของชุมชน`, `AI interpreted ${community}’s “${mission}” and turned it into a campaign aligned with season and community capacity.`)}</p>
         <DecisionConfidence value={92} factors={["Demand", "Season", "Community Need", "Capacity"]} />
         <div className="content-pack"><article><span>Promotion</span><strong>จอง Coffee Route รับ Mini Cupping Session ฟรี</strong></article><article><span>Thai caption</span><p>พรุ่งนี้กาแฟล็อตแรกเริ่มเก็บเกี่ยว มารู้จักกาแฟน่านตั้งแต่ต้นจนถึงถ้วยกับคนปลูกตัวจริง</p></article><article><span>English caption</span><p>Tomorrow, Nan’s first coffee harvest begins. Follow the bean from mountain farm to cup with local growers.</p></article><article><span>Suggested activity</span><strong>Coffee Harvest + Cupping + Local Lunch</strong></article></div>
         <div className="output-impact"><span>Expected result</span><strong>+42 visitors</strong><strong>+68,000 บาท</strong><strong>8 households</strong></div>
@@ -552,12 +572,13 @@ function CommunityCopilot() {
 }
 
 function AdaptiveExperiencePlanner() {
+  const { tr } = useLocale();
   const [interest, setInterest] = useState("Wellness");
   const [planned, setPlanned] = useState(false);
   return <div className="product-workspace">
-    <header className="workspace-identity"><div><p className="eyebrow">03 · Decision Delivery for Travelers</p><h1>Adaptive Experience Planner</h1></div><p>นำ Decision ของจังหวัดมาจับคู่กับความสนใจ อากาศ และฤดูกาล เพื่อสร้าง Experience ที่เหมาะกับผู้เดินทางและกระจายโอกาสไปพร้อมกัน</p></header>
+    <header className="workspace-identity"><div><p className="eyebrow">03 · {tr("ส่งต่อคำตัดสินสู่ผู้เดินทาง", "Decision Delivery for Travelers")}</p><h1>{tr("ตัววางแผนประสบการณ์แบบปรับตัว", "Adaptive Experience Planner")}</h1></div><p>{tr("นำคำตัดสินของจังหวัดมาจับคู่กับความสนใจ อากาศ และฤดูกาล เพื่อสร้างประสบการณ์ที่เหมาะกับผู้เดินทางและกระจายโอกาสไปพร้อมกัน", "Match the province’s decision with traveler interests, weather, and season to create the right experience while distributing opportunity.")}</p></header>
     <section className="planner-hero">
-      <div className="planner-question"><p className="eyebrow">Match traveler fit with provincial mission</p><h2>ความสนใจแบบไหน<br />ตรงกับ Mission นี้</h2><div className="interest-pills">{["Wellness","Craft","Food","Nature"].map(item => <button key={item} className={interest === item ? "active" : ""} onClick={() => { setInterest(item); setPlanned(false); }}>{item}</button>)}</div><button className="primary-action" onClick={() => setPlanned(true)}>{planned ? "Mission matched ✓" : "Match this mission to my trip"}</button></div>
+      <div className="planner-question"><p className="eyebrow">{tr("จับคู่ผู้เดินทางกับภารกิจของจังหวัด", "Match traveler fit with provincial mission")}</p><h2>{tr("ความสนใจแบบไหน", "Which interests")}<br />{tr("ตรงกับภารกิจนี้", "fit this mission?")}</h2><div className="interest-pills">{["Wellness","Craft","Food","Nature"].map(item => <button key={item} className={interest === item ? "active" : ""} onClick={() => { setInterest(item); setPlanned(false); }}>{item}</button>)}</div><button className="primary-action" onClick={() => setPlanned(true)}>{planned ? tr("จับคู่ภารกิจแล้ว ✓", "Mission matched ✓") : tr("จับคู่ภารกิจกับทริปของฉัน", "Match this mission to my trip")}</button></div>
       <div className="adaptive-signals"><p className="eyebrow">Live conditions</p><div><span>Weather</span><strong>ฝนหยุดพรุ่งนี้</strong><small>เหมาะกับ forest route</small></div><div><span>Season</span><strong>Herbal green season</strong><small>วัตถุดิบพร้อมที่สุด</small></div><div><span>Tourism pulse</span><strong>เวียงสา capacity พร้อม</strong><small>ปัวหนาแน่นกว่าปกติ</small></div></div>
     </section>
     <section className={`experience-plan ${planned ? "ready" : ""}`}>
@@ -570,24 +591,39 @@ function AdaptiveExperiencePlanner() {
 
 export function NanPulseApp() {
   const [view, setView] = useState<View>("mission");
-  const current = useMemo(() => views.find((item) => item.id === view) ?? views[0], [view]);
+  const [locale, setLocale] = useState<Locale>("th");
+  useEffect(() => {
+    const saved = window.localStorage.getItem("nan-pulse-locale");
+    if (saved === "th" || saved === "en") setLocale(saved);
+  }, []);
+  useEffect(() => {
+    document.documentElement.lang = locale;
+    document.body.dataset.locale = locale;
+    window.localStorage.setItem("nan-pulse-locale", locale);
+  }, [locale]);
+  const localizedViews = useMemo(() => views.map(item => ({ ...item,
+    label: item.id === "mission" ? localize(locale, "ศูนย์บัญชาการ", "Mission Control") : item.id === "copilot" ? localize(locale, "ผู้ช่วยชุมชน", "Community Copilot") : localize(locale, "ตัววางแผนประสบการณ์", "Experience Planner"),
+    note: item.id === "mission" ? localize(locale, "สำหรับหน่วยงานท่องเที่ยว", "For tourism authorities") : item.id === "copilot" ? localize(locale, "สำหรับชุมชนและผู้ประกอบการ", "For local operators") : localize(locale, "สำหรับนักท่องเที่ยว", "For travelers")
+  })), [locale]);
+  const current = useMemo(() => localizedViews.find((item) => item.id === view) ?? localizedViews[0], [view, localizedViews]);
 
   return (
-    <main className="app-shell">
+    <LocaleContext.Provider value={locale}>
+    <main className="app-shell" data-locale={locale}>
       <aside className="sidebar">
         <div className="brand"><span className="brand-pulse">AI</span><div><strong>Nan Pulse AI</strong><small>The Operating Pulse<br />of Sustainable Tourism</small></div></div>
         <nav aria-label="เมนูหลัก">
-          {views.map((item) => (
+          {localizedViews.map((item) => (
             <button key={item.id} className={view === item.id ? "active" : ""} onClick={() => setView(item.id)}>
               <span className="nav-mark" aria-hidden="true">{item.mark}</span><span><strong>{item.label}</strong><small>{item.note}</small></span>
             </button>
           ))}
         </nav>
-        <div className="sidebar-foot"><span className="live-dot" /> <div><strong>Province pulse live</strong><small>อัปเดต 08:30 · 5 signals</small></div></div>
+        <div className="sidebar-foot"><span className="live-dot" /> <div><strong>{localize(locale, "ชีพจรจังหวัดกำลังทำงาน", "Province pulse live")}</strong><small>{localize(locale, "อัปเดต 08:30 · 5 สัญญาณ", "Updated 08:30 · 5 signals")}</small></div></div>
       </aside>
 
       <section className="main-area">
-        <header className="topbar"><div><span className="mobile-mark">AI</span><p>{current.label}</p></div><span className="topbar-purpose">Decision → Local Value → 12 Months</span></header>
+        <header className="topbar"><div><span className="mobile-mark">AI</span><p>{current.label}</p></div><div className="topbar-tools"><span className="topbar-purpose">{localize(locale, "คำตัดสิน → มูลค่าท้องถิ่น → 12 เดือน", "Decision → Local Value → 12 Months")}</span><div className="locale-switch" role="group" aria-label={localize(locale, "เลือกภาษา", "Choose language")}><button className={locale === "th" ? "active" : ""} onClick={() => setLocale("th")} aria-pressed={locale === "th"}>ไทย</button><button className={locale === "en" ? "active" : ""} onClick={() => setLocale("en")} aria-pressed={locale === "en"}>EN</button></div></div></header>
         <div className="content-area">
           {view === "mission" && <MissionControl />}
           {view === "copilot" && <CommunityCopilot />}
@@ -595,5 +631,6 @@ export function NanPulseApp() {
         </div>
       </section>
     </main>
+    </LocaleContext.Provider>
   );
 }
