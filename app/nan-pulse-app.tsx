@@ -5,12 +5,30 @@ import { createContext, useContext, useEffect, useMemo, useState } from "react";
 type View = "mission" | "copilot" | "planner";
 type MissionSection = "today" | "opportunities" | "twin" | "forecast" | "impact" | "evaluation";
 type Locale = "th" | "en";
+type SharedMission = { id:string; community:string; campaign:string; households:number; businesses:number; visitors:number; expectedIncome:number; stay:string; interest:string; executedAt:string; feedbackRound:number };
+type LiveWeather = { status:"loading"|"connected"|"fallback"; temperature:number|null; humidity:number|null; precipitation:number|null; rainChance:number|null; wind:number|null; observedAt:string; message:string };
 
 const LocaleContext = createContext<Locale>("th");
 const localize = (locale: Locale, th: string, en: string) => locale === "th" ? th : en;
 function useLocale() {
   const locale = useContext(LocaleContext);
   return { locale, tr: (th: string, en: string) => localize(locale, th, en) };
+}
+
+const emptyWeather: LiveWeather = { status:"loading", temperature:null, humidity:null, precipitation:null, rainChance:null, wind:null, observedAt:"—", message:"Connecting to Open-Meteo" };
+function useNanWeather() {
+  const [weather, setWeather] = useState<LiveWeather>(emptyWeather);
+  const [refresh, setRefresh] = useState(0);
+  useEffect(() => {
+    const controller = new AbortController();
+    setWeather(emptyWeather);
+    fetch("https://api.open-meteo.com/v1/forecast?latitude=18.7756&longitude=100.7730&current=temperature_2m,relative_humidity_2m,precipitation,weather_code,wind_speed_10m&daily=precipitation_probability_max&timezone=Asia%2FBangkok&forecast_days=2", { signal:controller.signal })
+      .then(response => { if (!response.ok) throw new Error(`Weather API ${response.status}`); return response.json(); })
+      .then(data => setWeather({ status:"connected", temperature:data.current?.temperature_2m ?? null, humidity:data.current?.relative_humidity_2m ?? null, precipitation:data.current?.precipitation ?? null, rainChance:data.daily?.precipitation_probability_max?.[0] ?? null, wind:data.current?.wind_speed_10m ?? null, observedAt:data.current?.time?.replace("T"," ") ?? new Date().toLocaleString("th-TH"), message:"Open-Meteo · Nan coordinates 18.7756, 100.7730" }))
+      .catch(error => { if (error.name !== "AbortError") setWeather({ status:"fallback", temperature:null, humidity:null, precipitation:null, rainChance:null, wind:null, observedAt:new Date().toLocaleTimeString("th-TH"), message:"Live API unavailable · using demo weather signal" }); });
+    return () => controller.abort();
+  }, [refresh]);
+  return { weather, refreshWeather:() => setRefresh(value => value + 1) };
 }
 
 const views: Array<{ id: View; label: string; note: string; mark: string }> = [
@@ -103,9 +121,8 @@ function DecisionConfidence({ value, factors = ["Weather", "Demand", "Season", "
   </div>;
 }
 
-function MissionView({ onNavigate }: { onNavigate: () => void }) {
+function MissionView({ onNavigate, sharedMission, onExecute, onFeedback, weather, refreshWeather }: { onNavigate:() => void; sharedMission:SharedMission|null; onExecute:(mission:SharedMission) => void; onFeedback:() => void; weather:LiveWeather; refreshWeather:() => void }) {
   const { tr } = useLocale();
-  const [executed, setExecuted] = useState(false);
   const [flowActive, setFlowActive] = useState(false);
   const [capacity, setCapacity] = useState<60 | 0>(60);
   const decision = capacity === 60 ? {
@@ -130,7 +147,14 @@ function MissionView({ onNavigate }: { onNavigate: () => void }) {
     { rank: "03", place: "ปัว", score: "42%", state: tr("ไม่เลือก", "Rejected"), reason: tr("ความหนาแน่น 80% · ไม่ควรเพิ่มนักท่องเที่ยว", "Visitor density 80% · Avoid adding pressure"), tone: "" },
     { rank: "04", place: "บ่อเกลือ", score: "38%", state: tr("ไม่เลือก", "Rejected"), reason: tr("ความเสี่ยงด้านอากาศสูงกว่าเกณฑ์", "Weather risk exceeds the threshold"), tone: "" }
   ];
-  const changeCapacity = (value: 60 | 0) => { setCapacity(value); setExecuted(false); setFlowActive(false); };
+  const executed = sharedMission?.id === decision.receipt;
+  const actualRate = sharedMission ? [0,.38,.72,.91][sharedMission.feedbackRound] ?? .91 : 0;
+  const actualIncome = sharedMission ? Math.round(sharedMission.expectedIncome * actualRate / 100) * 100 : 0;
+  const actualVisitors = sharedMission ? Math.round(sharedMission.visitors * actualRate) : 0;
+  const learnedConfidence = Math.max(72, decision.confidence - (sharedMission?.feedbackRound ? Math.round(Math.abs(1 - actualRate) * 8) : 0));
+  const liveWeatherText = weather.status === "connected" ? `${weather.temperature}°C · Rain ${weather.rainChance}%` : weather.status === "loading" ? tr("กำลังเชื่อมข้อมูลจริง", "Connecting live data") : tr("ใช้ข้อมูลสำรอง", "Using fallback data");
+  const changeCapacity = (value: 60 | 0) => { setCapacity(value); setFlowActive(false); };
+  const executeDecision = () => onExecute({ id:decision.receipt, community:decision.community, campaign:decision.campaign, households:decision.households, businesses:decision.businesses, visitors:decision.visitors, expectedIncome:Number(decision.income.replace(",","")), stay:decision.stay, interest:capacity === 60 ? "Craft" : "Wellness", executedAt:new Date().toLocaleTimeString("th-TH", {hour12:false}), feedbackRound:0 });
   return (
     <div className="view-stack">
       <section className={`decision-hero killer-moment ${executed ? "mission-executed" : ""}`} aria-labelledby="today-decision">
@@ -153,12 +177,18 @@ function MissionView({ onNavigate }: { onNavigate: () => void }) {
         <p className="decision-copy">{tr("ต้องการให้ AI ", "Would you like AI to ")}<strong>{tr("สร้างแคมเปญและปรับเส้นทางนักท่องเที่ยวอัตโนมัติ", "create the campaign and automatically redirect travelers")}</strong>{tr("หรือไม่?", "?")}</p>
         <DecisionConfidence value={decision.confidence} factors={["Weather", "Demand", "Season", "Community", "Capacity"]} dark />
 
+        <div className={`real-weather-bar weather-${weather.status}`}>
+          <div><span className="weather-live-icon">{weather.status === "connected" ? "✓" : weather.status === "loading" ? "…" : "!"}</span><div><small>{tr("ข้อมูลจริง · สภาพอากาศน่าน", "Live data · Nan weather")}</small><strong>{liveWeatherText}</strong></div></div>
+          <div className="weather-values"><span><b>{weather.humidity ?? "—"}%</b>{tr("ความชื้น", "Humidity")}</span><span><b>{weather.precipitation ?? "—"} mm</b>{tr("ฝนปัจจุบัน", "Precipitation")}</span><span><b>{weather.wind ?? "—"} km/h</b>{tr("ลม", "Wind")}</span></div>
+          <div><small>{weather.message}</small><em>{tr("เวลาอ่านข้อมูล", "Observed")} {weather.observedAt}</em><button onClick={refreshWeather}>{tr("อัปเดต", "Refresh")} ↻</button></div>
+        </div>
+
         <div className="live-decision-control">
           <div>
             <p><span className="live-dot" /> {tr("การเปลี่ยนคำตัดสินแบบทันที", "Live Decision Change")}</p>
             <strong>{tr("เปลี่ยนขีดความสามารถ แล้วดู AI ตัดสินใจใหม่", "Change capacity and watch AI decide again")}</strong>
           </div>
-          <div className="live-signal-row"><span>Weather <b>ฝนหยุดพรุ่งนี้</b></span><span>Demand <b>สูง</b></span><span>Season <b>Green season</b></span></div>
+          <div className="live-signal-row"><span>Weather <b>{liveWeatherText}</b></span><span>Demand <b>สูง</b></span><span>Season <b>Green season</b></span></div>
           <div className="capacity-toggle" role="group" aria-label="เปลี่ยน capacity ของเวียงสา">
             <small>{tr("ขีดความสามารถเวียงสา", "Wiang Sa Capacity")}</small>
             <button className={capacity === 60 ? "active" : ""} onClick={() => changeCapacity(60)}>60 {tr("คน", "people")}</button>
@@ -167,7 +197,7 @@ function MissionView({ onNavigate }: { onNavigate: () => void }) {
         </div>
 
         <div className="decision-actions">
-          <button className="primary-action execute-action" onClick={() => setExecuted(true)} disabled={executed}>
+          <button className="primary-action execute-action" onClick={executeDecision} disabled={executed}>
             {executed ? tr("ดำเนินภารกิจแล้ว ✓", "Mission Executed ✓") : tr("ดำเนินภารกิจ", "Execute Mission")}
           </button>
           {!executed && <button className="text-action" onClick={onNavigate}>{tr("ตรวจสอบโอกาสก่อน", "Review opportunity first")} <span>→</span></button>}
@@ -189,6 +219,11 @@ function MissionView({ onNavigate }: { onNavigate: () => void }) {
             <b aria-hidden="true">→</b>
             <div><span>After AI</span><strong>{decision.originAfter}</strong><i>{decision.after}</i></div>
             <div className="simulation-impact"><span>Expected Impact</span><strong>{decision.households} ครัวเรือน</strong><i>+{decision.income} บาท · {decision.stay}พัก</i></div>
+          </div>}
+          {executed && <div className="feedback-loop-proof">
+            <div className="feedback-loop-head"><div><span>Closed Feedback Loop</span><strong>{tr("คาดการณ์ → ผลที่สังเกต → เรียนรู้รอบถัดไป", "Expected → Observed → Learn next cycle")}</strong></div><button onClick={onFeedback} disabled={(sharedMission?.feedbackRound ?? 0) >= 3}>{(sharedMission?.feedbackRound ?? 0) >= 3 ? tr("เก็บข้อมูลครบแล้ว ✓", "Observation complete ✓") : tr("รับผลจริงรอบถัดไป (Demo)", "Record next observed result (Demo)")}</button></div>
+            <div className="feedback-compare"><article><span>Expected</span><strong>฿{sharedMission?.expectedIncome.toLocaleString()}</strong><small>{sharedMission?.visitors} travelers · {decision.confidence}% confidence</small></article><b>→</b><article className="observed"><span>Observed · Demo round {sharedMission?.feedbackRound}</span><strong>{sharedMission?.feedbackRound ? `฿${actualIncome.toLocaleString()}` : tr("รอข้อมูล", "Waiting")}</strong><small>{sharedMission?.feedbackRound ? `${actualVisitors} travelers · ${Math.round(actualRate * 100)}% of target` : tr("ยังไม่มีผลลัพธ์หลังเปิดแคมเปญ", "No post-campaign observation yet")}</small></article><b>→</b><article className="learned"><span>AI Learning</span><strong>{sharedMission?.feedbackRound ? `${learnedConfidence}%` : "—"}</strong><small>{sharedMission?.feedbackRound ? tr("ปรับ Confidence และขนาดแคมเปญรอบถัดไป", "Confidence and next campaign size recalibrated") : tr("เริ่มเมื่อมีผลจริง", "Starts after observed data")}</small></article></div>
+            <p>{tr("ข้อมูล Observed ใน Prototype เป็นชุดจำลองสำหรับสาธิตวงจรเรียนรู้ ไม่ใช่รายได้ที่ยืนยันแล้วจากชุมชน", "Observed values in this prototype are simulated to demonstrate the learning loop; they are not verified community revenue.")}</p>
           </div>}
         </div>
       </section>
@@ -266,7 +301,7 @@ function MissionView({ onNavigate }: { onNavigate: () => void }) {
           <span className="freshness">ข้อมูลอัปเดต 08:30</span>
         </div>
         <div className="signal-grid">
-          <Signal label="Weather" value="ฝนหยุดพรุ่งนี้" />
+          <Signal label="Weather" value={liveWeatherText} />
           <Signal label="Season" value={decision.season} />
           <Signal label="Community Need" value="ความต้องการสูง" />
           <Signal label="Demand" value="ต่ำกว่าเป้าหมาย 60 คน" tone="warn" />
@@ -544,7 +579,7 @@ function TourismDigitalTwin() {
   </div>;
 }
 
-function MissionControl() {
+function MissionControl({ sharedMission, onExecute, onFeedback, weather, refreshWeather }: { sharedMission:SharedMission|null; onExecute:(mission:SharedMission) => void; onFeedback:() => void; weather:LiveWeather; refreshWeather:() => void }) {
   const { tr } = useLocale();
   const [section, setSection] = useState<MissionSection>("today");
   const sections: Array<{ id: MissionSection; label: string }> = [
@@ -557,7 +592,7 @@ function MissionControl() {
   ];
   return <div className="product-workspace">
     <nav className="workspace-tabs" aria-label={tr("เครื่องมือศูนย์บัญชาการ", "Mission Control tools")}>{sections.map(item => <button key={item.id} className={section === item.id ? "active" : ""} onClick={() => setSection(item.id)}>{item.label}</button>)}</nav>
-    {section === "today" && <MissionView onNavigate={() => setSection("opportunities")} />}
+    {section === "today" && <MissionView onNavigate={() => setSection("opportunities")} sharedMission={sharedMission} onExecute={onExecute} onFeedback={onFeedback} weather={weather} refreshWeather={refreshWeather} />}
     {section !== "today" && <header className="workspace-identity"><div><p className="eyebrow">01 · {tr("ระบบตัดสินใจระดับจังหวัด", "Provincial Decision System")}</p><h1>{tr("ศูนย์บัญชาการ", "Mission Control")}</h1></div><p>{tr("ระบบตัดสินใจว่าจังหวัดควรสร้างโอกาสที่ไหน เมื่อไร และให้ใคร ก่อนส่งคำตัดสินไปสู่แคมเปญ ชุมชน และการเดินทางจริง", "A system that decides where, when, and for whom Nan should create opportunity—before activating campaigns, communities, and journeys.")}</p></header>}
     {section !== "today" && <section className="decision-doctrine"><div><span>{tr("Nan Pulse AI คือ", "Nan Pulse AI is")}</span><strong>{tr("ระบบการตัดสินใจ", "a decision system")}</strong></div><b>≠</b><div><span>{tr("Nan Pulse AI ไม่ใช่", "Nan Pulse AI is not")}</span><strong>{tr("ระบบแนะนำสถานที่", "a place recommender")}</strong></div><ol><li>{tr("ตรวจจับ", "Detect")}</li><li>{tr("สัญญาณ", "Signals")}</li><li>{tr("แคมเปญ", "Campaign")}</li><li>{tr("ส่งต่อ", "Redirect")}</li><li>{tr("ผลกระทบ", "Impact")}</li></ol></section>}
     {section === "opportunities" && <OpportunityView />}
@@ -569,7 +604,7 @@ function MissionControl() {
   </div>;
 }
 
-function CommunityCopilot() {
+function CommunityCopilot({ sharedMission }: { sharedMission:SharedMission|null }) {
   const { locale, tr } = useLocale();
   const [community, setCommunity] = useState("เวียงสา");
   const [goal, setGoal] = useState("workshop");
@@ -590,6 +625,14 @@ function CommunityCopilot() {
   const needIcons: Record<string, string> = { "Need Visitors": "↗", "Need Promotion": "✦", "Need Coffee Lovers": "◉", "Need Family Travelers": "⌂" };
   const communities = Array.from(new Set(copilotScenarios.map(item => item.community)));
   const filteredScenarios = exampleFilter === "all" ? copilotScenarios : copilotScenarios.filter(item => item.community === exampleFilter);
+  useEffect(() => {
+    if (!sharedMission) return;
+    setCommunity(sharedMission.community);
+    setMission(sharedMission.community === "สันติสุข" ? "Need Visitors" : "Need Promotion");
+    setGoal("launch");
+    setCreated(true);
+    setExampleFilter(sharedMission.community);
+  }, [sharedMission?.id]);
   const active = copilotScenarios.find(item => item.community === community && item.need === mission) ?? copilotScenarios[0];
   const goalConfig = goal === "low-season"
     ? { label: tr("แคมเปญนอกฤดู", "Off-season Campaign"), prefix: "Green Season", confidence: -2, visitorDelta: 10, incomeMultiplier: 1.15, actionTh: "เพิ่มข้อเสนอจองล่วงหน้า 7 วัน", actionEn: "Add a seven-day early-booking offer" }
@@ -604,6 +647,7 @@ function CommunityCopilot() {
   };
   return <div className="product-workspace">
     <header className="workspace-identity"><div><p className="eyebrow">02 · {tr("เปลี่ยนคำตัดสินเป็นการลงมือทำ", "Decision Activation for Operators")}</p><h1>{tr("ผู้ช่วยชุมชน", "Community Copilot")}</h1></div><p>{tr("รับภารกิจที่จังหวัดตัดสินใจแล้วมาเปลี่ยนเป็นโปรโมชัน เนื้อหาประชาสัมพันธ์ และกิจกรรมที่ชุมชนดำเนินการได้จริง", "Turn the province’s approved mission into promotions, communication content, and activities local operators can deliver.")}</p></header>
+    {sharedMission && <section className="shared-mission-banner mission-received"><span>✓</span><div><small>{tr("รับคำสั่งจาก Mission Control แล้ว", "Mission received from Mission Control")}</small><strong>{sharedMission.campaign} → {sharedMission.community}</strong><p>{tr(`แจ้ง ${sharedMission.households} ครัวเรือน · เตรียมแคมเปญสำหรับ ${sharedMission.visitors} คน · Execute ${sharedMission.executedAt}`, `${sharedMission.households} households notified · Campaign prepared for ${sharedMission.visitors} travelers · Executed ${sharedMission.executedAt}`)}</p></div><em>Community notified</em></section>}
     <section className="copilot-example-library" aria-labelledby="copilot-examples-title">
       <div className="copilot-example-head"><div><p className="eyebrow">{tr("คลังข้อมูลจำลอง", "Mock Data Library")}</p><h2 id="copilot-examples-title">{tr("24 ภารกิจที่เปลี่ยนผลลัพธ์ได้จริง", "24 missions with distinct outputs")}</h2></div><span>{tr("เลือกข้อมูลเพื่อเปรียบเทียบทันที", "Select data to compare instantly")}</span></div>
       <div className="copilot-data-summary"><div><strong>6</strong><span>{tr("ชุมชน", "communities")}</span></div><div><strong>24</strong><span>{tr("ภารกิจจำลอง", "mock missions")}</span></div><div><strong>72</strong><span>{tr("รูปแบบผลลัพธ์", "output combinations")}</span></div><div><strong>4</strong><span>{tr("กลุ่มนักท่องเที่ยว", "traveler segments")}</span></div></div>
@@ -649,7 +693,7 @@ const plannerConditions = [
   { id:"festival", icon:"✺", labelTh:"เทศกาลหนาแน่น", labelEn:"Festival crowd", weather:"อากาศดี · การเดินทางปกติ", season:"เทศกาลเมืองน่านสุดสัปดาห์นี้", density:"เมืองน่าน 94% · แม่จริม 16%", reason:"หลีกเลี่ยงจุดหนาแน่นและเพิ่มเส้นทางชุมชนรอง", confidence:2, visitors:24, income:1.24, risk:"ต่ำ", swap:"Crowd bypass activated" },
 ];
 
-function AdaptiveExperiencePlanner() {
+function AdaptiveExperiencePlanner({ sharedMission, weather }: { sharedMission:SharedMission|null; weather:LiveWeather }) {
   const { tr } = useLocale();
   const [interest, setInterest] = useState("Wellness");
   const [condition, setCondition] = useState("clear");
@@ -660,9 +704,10 @@ function AdaptiveExperiencePlanner() {
   const live = plannerConditions.find(item => item.id === condition) ?? plannerConditions[0];
   const confidence = Math.max(72, 87 + live.confidence);
   const expectedIncome = Math.round(profile.income * live.income / 100) * 100;
+  const realWeatherValue = weather.status === "connected" ? `${weather.temperature}°C · Rain ${weather.rainChance}% · Wind ${weather.wind} km/h` : live.weather;
   const adaptedStops = profile.stops.map((stop, index) => condition === "rain" && index === 0 ? `${tr("กิจกรรมในร่ม", "Indoor session")} · ${stop.split("·")[1] ?? profile.to}` : condition === "pm25" && index === 2 ? `${tr("Clean-air Community Lab", "Clean-air Community Lab")} · ภูเพียง` : condition === "festival" && index === 3 ? `${tr("เส้นทางเลี่ยงฝูงชน", "Crowd-free local route")} · ${profile.to}` : stop);
   const pipeline = [
-    { icon:"☁", label:"Weather", source:"Weather API · Demo", value:live.weather },
+    { icon:"☁", label:"Weather", source:weather.status === "connected" ? "Open-Meteo · Live" : "Weather fallback · Demo", value:realWeatherValue },
     { icon:"◐", label:"Season", source:"Season Calendar · Demo", value:live.season },
     { icon:"≋", label:"PM2.5", source:"Air Sensor · Demo", value:condition === "pm25" ? "48 µg/m³ · สูง" : "14 µg/m³ · ปกติ" },
     { icon:"◎", label:"Density", source:"Tourism Pulse · Demo", value:live.density },
@@ -679,10 +724,17 @@ function AdaptiveExperiencePlanner() {
     }, 320 + index * 420));
     return () => timers.forEach(timer => window.clearTimeout(timer));
   }, [interest, condition, feedRun]);
+  useEffect(() => {
+    if (!sharedMission) return;
+    setInterest(sharedMission.interest);
+    if (weather.status === "connected") setCondition((weather.rainChance ?? 0) >= 50 ? "rain" : "clear");
+    setFeedRun(run => run + 1);
+  }, [sharedMission?.id, weather.status]);
   const choose = (nextInterest:string, nextCondition:string) => { setInterest(nextInterest); setCondition(nextCondition); setFeedRun(run => run + 1); };
   const rerun = () => setFeedRun(run => run + 1);
   return <div className="product-workspace">
     <header className="workspace-identity"><div><p className="eyebrow">03 · {tr("ส่งต่อคำตัดสินสู่ผู้เดินทาง", "Decision Delivery for Travelers")}</p><h1>{tr("ตัววางแผนประสบการณ์แบบปรับตัว", "Adaptive Experience Planner")}</h1></div><p>{tr("AI ไม่ได้แนะนำสถานที่ แต่เปลี่ยนเส้นทางตามความสนใจ อากาศ ฤดูกาล และความหนาแน่น เพื่อส่งโอกาสไปยังชุมชนที่พร้อม", "AI does not recommend places. It adapts the journey using interest, weather, season, and density to send opportunity to ready communities.")}</p></header>
+    {sharedMission && <section className="shared-mission-banner journey-updated"><span>↗</span><div><small>{tr("ได้รับ Mission จากจังหวัดแล้ว", "Provincial mission received")}</small><strong>{tr(`ปรับ Journey ไปยัง${sharedMission.community}`, `Journey redirected to ${sharedMission.community}`)}</strong><p>{tr(`${sharedMission.campaign} · เป้าหมาย ${sharedMission.visitors} คน · ใช้สภาพอากาศจริงประกอบการปรับเส้นทาง`, `${sharedMission.campaign} · ${sharedMission.visitors} travelers · Live weather included in rerouting`)}</p></div><em>Tourist journey updated</em></section>}
     <section className="planner-data-library">
       <div className="planner-library-head"><div><p className="eyebrow">{tr("คลังสถานการณ์จำลอง", "Mock Scenario Library")}</p><h2>{tr("24 สถานการณ์ที่ทำให้เส้นทางเปลี่ยน", "24 scenarios that change the journey")}</h2></div><div className="planner-counts"><span><b>6</b>{tr("ความสนใจ", "interests")}</span><span><b>4</b>{tr("สัญญาณสด", "live signals")}</span><span><b>24</b>{tr("ผลลัพธ์", "outcomes")}</span></div></div>
       <div className="planner-scenario-grid">{plannerProfiles.map(profileItem => plannerConditions.map(conditionItem => <button key={`${profileItem.id}-${conditionItem.id}`} className={interest === profileItem.id && condition === conditionItem.id ? "active" : ""} onClick={() => choose(profileItem.id, conditionItem.id)}><i>{profileItem.icon}</i><span>{profileItem.id} · {tr(conditionItem.labelTh, conditionItem.labelEn)}</span><strong>{profileItem.title}</strong><small>{conditionItem.icon} {profileItem.to}</small></button>))}</div>
@@ -695,7 +747,7 @@ function AdaptiveExperiencePlanner() {
     </section>
     <section className="planner-hero">
       <div className="planner-question"><p className="eyebrow">{tr("เลือกข้อมูลแล้วดู AI ปรับทันที", "Change inputs and watch AI adapt")}</p><h2>{tr("เปลี่ยนสัญญาณ", "Change the signals")}<br />{tr("เปลี่ยนเส้นทาง", "Change the journey")}</h2><div className="interest-pills">{plannerProfiles.map(item => <button key={item.id} className={interest === item.id ? "active" : ""} onClick={() => choose(item.id, condition)}>{item.icon} {item.id}</button>)}</div><div className="condition-pills">{plannerConditions.map(item => <button key={item.id} className={condition === item.id ? "active" : ""} onClick={() => choose(interest, item.id)}><i>{item.icon}</i>{tr(item.labelTh,item.labelEn)}</button>)}</div><button className="primary-action" onClick={rerun} disabled={!planned}>{planned ? tr("รับข้อมูลใหม่และปรับอีกครั้ง", "Refresh data and adapt again") : tr("AI กำลังทำงาน…", "AI is working…")}</button></div>
-      <div key={condition} className={`adaptive-signals signal-change ${dataStage < 4 ? "receiving" : ""}`}><p className="eyebrow">Live conditions · {live.icon}</p><div><span>Weather</span><strong>{dataStage >= 1 ? live.weather : tr("กำลังรับข้อมูล…", "Receiving data…")}</strong><small>{dataStage >= 1 ? live.swap : "Weather API · Demo"}</small></div><div><span>Season</span><strong>{dataStage >= 2 ? live.season : tr("รอสัญญาณฤดูกาล", "Waiting for season signal")}</strong><small>{dataStage >= 2 ? tr("ตรวจสอบหน้าต่างโอกาสแล้ว", "Opportunity window checked") : "Season Calendar · Demo"}</small></div><div><span>Tourism pulse</span><strong>{dataStage >= 4 ? live.density : tr("กำลังคำนวณความหนาแน่น", "Calculating density")}</strong><small>{dataStage >= 4 ? live.reason : "Tourism Pulse · Demo"}</small></div><div className="signal-risk"><span>Route risk</span><strong>{dataStage >= 5 ? live.risk : "—"}</strong><small>{dataStage >= 5 ? tr("AI ประเมินก่อนเปลี่ยนเส้นทาง", "AI evaluated before rerouting") : tr("รอ Decision Engine", "Waiting for Decision Engine")}</small></div></div>
+      <div key={condition} className={`adaptive-signals signal-change ${dataStage < 4 ? "receiving" : ""}`}><p className="eyebrow">Live conditions · {live.icon}</p><div><span>Weather</span><strong>{dataStage >= 1 ? realWeatherValue : tr("กำลังรับข้อมูล…", "Receiving data…")}</strong><small>{dataStage >= 1 ? (weather.status === "connected" ? "Open-Meteo · Connected" : live.swap) : "Open-Meteo API"}</small></div><div><span>Season</span><strong>{dataStage >= 2 ? live.season : tr("รอสัญญาณฤดูกาล", "Waiting for season signal")}</strong><small>{dataStage >= 2 ? tr("ตรวจสอบหน้าต่างโอกาสแล้ว", "Opportunity window checked") : "Season Calendar · Demo"}</small></div><div><span>Tourism pulse</span><strong>{dataStage >= 4 ? live.density : tr("กำลังคำนวณความหนาแน่น", "Calculating density")}</strong><small>{dataStage >= 4 ? live.reason : "Tourism Pulse · Demo"}</small></div><div className="signal-risk"><span>Route risk</span><strong>{dataStage >= 5 ? live.risk : "—"}</strong><small>{dataStage >= 5 ? tr("AI ประเมินก่อนเปลี่ยนเส้นทาง", "AI evaluated before rerouting") : tr("รอ Decision Engine", "Waiting for Decision Engine")}</small></div></div>
     </section>
     <section key={`${interest}-${condition}-${feedRun}`} className={`experience-plan ${planned ? "ready" : "processing"}`} aria-busy={!planned}>
       <div className="plan-title"><p className="eyebrow">Mission-matched experience · {interest}</p><h2>{profile.title}</h2><p>{profile.description}</p><DecisionConfidence value={confidence} factors={["Weather", "Traveler Fit", "Season", "Community Capacity"]} /></div>
@@ -709,6 +761,10 @@ function AdaptiveExperiencePlanner() {
 export function NanPulseApp() {
   const [view, setView] = useState<View>("mission");
   const [locale, setLocale] = useState<Locale>("th");
+  const [sharedMission, setSharedMission] = useState<SharedMission|null>(null);
+  const { weather, refreshWeather } = useNanWeather();
+  const executeMission = (mission:SharedMission) => setSharedMission(mission);
+  const recordFeedback = () => setSharedMission(current => current ? { ...current, feedbackRound:Math.min(3, current.feedbackRound + 1) } : current);
   useEffect(() => {
     const saved = window.localStorage.getItem("nan-pulse-locale");
     if (saved === "th" || saved === "en") setLocale(saved);
@@ -732,7 +788,7 @@ export function NanPulseApp() {
         <nav aria-label="เมนูหลัก">
           {localizedViews.map((item) => (
             <button key={item.id} className={view === item.id ? "active" : ""} onClick={() => setView(item.id)}>
-              <span className="nav-mark" aria-hidden="true">{item.mark}</span><span><strong>{item.label}</strong><small>{item.note}</small></span>
+              <span className="nav-mark" aria-hidden="true">{item.mark}</span><span><strong>{item.label}</strong><small>{item.note}</small></span>{sharedMission && <em className={`mission-sync-badge sync-${item.id}`}>{item.id === "mission" ? "Executed" : item.id === "copilot" ? "Received" : "Updated"}</em>}
             </button>
           ))}
         </nav>
@@ -742,9 +798,9 @@ export function NanPulseApp() {
       <section className="main-area">
         <header className="topbar"><div><span className="mobile-mark">AI</span><p>{current.label}</p></div><div className="topbar-tools"><span className="topbar-purpose">{localize(locale, "คำตัดสิน → มูลค่าท้องถิ่น → 12 เดือน", "Decision → Local Value → 12 Months")}</span><div className="locale-switch" role="group" aria-label={localize(locale, "เลือกภาษา", "Choose language")}><button className={locale === "th" ? "active" : ""} onClick={() => setLocale("th")} aria-pressed={locale === "th"}>ไทย</button><button className={locale === "en" ? "active" : ""} onClick={() => setLocale("en")} aria-pressed={locale === "en"}>EN</button></div></div></header>
         <div className="content-area">
-          {view === "mission" && <MissionControl />}
-          {view === "copilot" && <CommunityCopilot />}
-          {view === "planner" && <AdaptiveExperiencePlanner />}
+          {view === "mission" && <MissionControl sharedMission={sharedMission} onExecute={executeMission} onFeedback={recordFeedback} weather={weather} refreshWeather={refreshWeather} />}
+          {view === "copilot" && <CommunityCopilot sharedMission={sharedMission} />}
+          {view === "planner" && <AdaptiveExperiencePlanner sharedMission={sharedMission} weather={weather} />}
         </div>
       </section>
     </main>
