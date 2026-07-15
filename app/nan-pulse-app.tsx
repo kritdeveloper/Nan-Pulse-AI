@@ -355,7 +355,7 @@ function EvaluationEvidence({ onNavigate }: { onNavigate: (section: MissionSecti
   const criteria: Array<{ score: string; title: string; thesis: string; evidence: string[]; demo: string; section: MissionSection; tone: string }> = [
     { score: "20", title: "Impact เชิงท่องเที่ยว", thesis: "ตัดสินใจเพื่อเพิ่มกิจกรรมนอกฤดู กระจาย demand และสร้างรายได้ให้พื้นที่รอง", evidence: ["Official baseline + AI estimate แยกชัด", "3 North-star KPIs วัดผลต่อเนื่อง", "Mission Feed เชื่อม Decision กับรายได้จริง"], demo: "เห็นนักท่องเที่ยวถูก redirect 42 คน และผลต่อรายได้/ครัวเรือน", section: "impact", tone: "lime" },
     { score: "15", title: "ความเข้าใจชุมชน", thesis: "เริ่มจาก Community Need, Readiness และ Capacity ไม่ได้เริ่มจากสถานที่ยอดนิยม", evidence: ["ชุมชนกำหนด Need และ guardrail", "AI เลือกกลุ่มนักท่องเที่ยวที่เหมาะ", "Copilot เปลี่ยน Mission เป็นงานที่ทำได้จริง"], demo: "เห็นว่าเวียงสารับได้อีก 60 คน ขณะที่ปัวถูกตัดออกเพราะเต็ม", section: "today", tone: "forest" },
-    { score: "15", title: "ความคิดสร้างสรรค์", thesis: "Tourism Digital Twin จำลองผลของ Campaign ก่อนจังหวัดตัดสินใจใช้จริง", evidence: ["ไม่ใช่ dashboard หรือ travel search", "ลาก Campaign เพื่อเห็น Before/After", "Closed-loop: Decision → Action → Learning"], demo: "ลาก Coffee Festival แล้วเห็น density, income และ stay เปลี่ยนทันที", section: "twin", tone: "sun" },
+    { score: "15", title: "ความคิดสร้างสรรค์", thesis: "AI Opportunity Simulator จำลองทั้งผลตอบแทนและความเสี่ยงก่อนจังหวัดตัดสินใจจริง", evidence: ["ไม่ใช่ dashboard หรือ travel search", "กด Scenario เพื่อเห็น Before/After", "Closed-loop: Decision → Action → Learning"], demo: "กดโปรโมตกาแฟเดือนกรกฎาคม แล้วเห็น visitors, income, communities และ risk ทันที", section: "twin", tone: "sun" },
     { score: "15", title: "การใช้ AI", thesis: "AI ทำหน้าที่ตัดสินใจ คาดการณ์ อธิบาย จับคู่ สร้างแคมเปญ และเรียนรู้ผลลัพธ์", evidence: ["Decision มี Reason + Confidence", "Forecast และ matching มี capacity guardrail", "Human approval ก่อน activate campaign"], demo: "กรรมการเห็น input → decision → reason → expected impact ใน flow เดียว", section: "forecast", tone: "coral" },
   ];
   return <div className="view-stack">
@@ -371,22 +371,24 @@ function EvaluationEvidence({ onNavigate }: { onNavigate: (section: MissionSecti
 
 function TourismDigitalTwin() {
   const scenarios = [
-    { id: "coffee", name: "Coffee Festival", note: "Harvest window · 5 days", visitors: "+15%", income: "+280K", stay: "+0.8 day", communities: "+4", pua: 55, wiangsa: 18, confidence: 88 },
-    { id: "textile", name: "Textile Learning Week", note: "Green season · 14 days", visitors: "+11%", income: "+190K", stay: "+0.5 day", communities: "+3", pua: 62, wiangsa: 15, confidence: 91 },
-    { id: "wellness", name: "Forest Wellness Route", note: "Low-density window · 9 days", visitors: "+9%", income: "+156K", stay: "+1.1 day", communities: "+5", pua: 66, wiangsa: 12, confidence: 84 },
+    { id: "coffee", name: "โปรโมตกาแฟเดือนกรกฎาคม", note: "Coffee Harvest · 20–31 Jul", visitors: "+62 คน", income: "+280K บาท", stay: "+0.8 วัน", communities: "4 ชุมชน", households: "23 ครัวเรือน", risk: "ปานกลาง", riskTone: "medium", riskDetail: "ฝน 35% · ต้องกระจายรอบเข้าชมไม่เกิน 12 คน", pua: 55, wiangsa: 18, confidence: 88 },
+    { id: "textile", name: "โปรโมตผ้าทอช่วง Green Season", note: "Textile Learning · 14 days", visitors: "+46 คน", income: "+190K บาท", stay: "+0.5 วัน", communities: "3 ชุมชน", households: "18 ครัวเรือน", risk: "ต่ำ", riskTone: "low", riskDetail: "Capacity พร้อม · ต้องยืนยันวิทยากร 2 กลุ่ม", pua: 62, wiangsa: 15, confidence: 91 },
+    { id: "wellness", name: "เปิด Forest Wellness Route", note: "Low-density window · 9 days", visitors: "+38 คน", income: "+156K บาท", stay: "+1.1 วัน", communities: "5 ชุมชน", households: "16 ครัวเรือน", risk: "ปานกลาง", riskTone: "medium", riskDetail: "เส้นทางลื่นหลังฝน · ต้องมี route fallback", pua: 66, wiangsa: 12, confidence: 84 },
   ];
   const [selected, setSelected] = useState<string | null>(null);
   const active = scenarios.find(item => item.id === selected);
   return <div className="view-stack">
-    <header className="content-header compact"><div><p className="eyebrow">One Killer Feature · Tourism Digital Twin</p><h1>ทดลอง Decision<br />ก่อนใช้กับจังหวัดจริง</h1></div><p>ไม่ใช่แผนที่ แต่เป็น simulation environment สำหรับดูผลของ Campaign ต่อการกระจายนักท่องเที่ยว รายได้ ระยะเวลาพัก และชุมชน</p></header>
+    <header className="content-header compact"><div><p className="eyebrow">One Killer Feature · AI Opportunity Simulator</p><h1>ทดลองโอกาส<br />ก่อนตัดสินใจจริง</h1></div><p>จังหวัดเลือกสิ่งที่ต้องการโปรโมต แล้ว AI จำลองผลต่อนักท่องเที่ยว รายได้ ชุมชน และความเสี่ยงทันที—นี่คือระบบตัดสินใจ ไม่ใช่ Trip Planner</p></header>
     <section className="twin-workbench">
-      <div className="campaign-dock"><p className="eyebrow">Campaign scenarios</p><h2>ลาก Campaign<br />ลงใน Digital Twin</h2><div>{scenarios.map(item => <button draggable key={item.id} onDragStart={event => event.dataTransfer.setData("campaign", item.id)} onClick={() => setSelected(item.id)} className={selected === item.id ? "active" : ""}><span>⋮⋮</span><strong>{item.name}</strong><small>{item.note}</small></button>)}</div><p>ลากและวาง หรือกดเลือกเพื่อรองรับ keyboard/touch</p></div>
+      <div className="campaign-dock"><p className="eyebrow">Opportunity scenarios</p><h2>จังหวัดต้องการ<br />ทดลองอะไร?</h2><div>{scenarios.map((item, index) => <button draggable key={item.id} onDragStart={event => event.dataTransfer.setData("campaign", item.id)} onClick={() => setSelected(item.id)} className={selected === item.id ? "active" : ""}><span>0{index + 1}</span><strong>{item.name}</strong><small>{item.note} · Run simulation →</small></button>)}</div><p>กด Scenario เพื่อให้ AI ประเมินผลทันที หรือจะลากลงพื้นที่จำลองก็ได้</p></div>
       <div className={`twin-stage ${active ? "has-scenario" : ""}`} onDragOver={event => event.preventDefault()} onDrop={event => { event.preventDefault(); setSelected(event.dataTransfer.getData("campaign")); }}>
-        {!active ? <div className="empty-twin"><span>◎</span><strong>Drop campaign here</strong><small>AI จะจำลอง Before / After ทันที</small></div> : <>
-          <div className="twin-head"><div><p className="eyebrow">Running simulation</p><h2>{active.name}</h2></div><span>{active.confidence}% confidence</span></div>
+        {!active ? <div className="empty-twin"><span>◎</span><strong>Choose an opportunity</strong><small>AI จะจำลอง Benefit + Risk ก่อนจังหวัดอนุมัติ</small></div> : <>
+          <div className="twin-head"><div><p className="eyebrow">AI Simulation Complete</p><h2>{active.name}</h2></div><span>{active.confidence}% confidence</span></div>
           <DecisionConfidence value={active.confidence} factors={["Weather", "Demand", "Season", "Community Capacity"]} />
+          <div className="simulation-equation"><span>Weather</span><b>+</b><span>Season</span><b>+</b><span>Demand</span><b>+</b><span>Community Need</span><strong>→ Opportunity Impact</strong></div>
           <div className="twin-density"><div><p>Before AI</p><article><span>ปัว</span><strong>80%</strong><i><b style={{ width: "80%" }} /></i></article><article><span>เวียงสา</span><strong>3%</strong><i><b style={{ width: "3%" }} /></i></article></div><em>→</em><div><p>After AI</p><article><span>ปัว</span><strong>{active.pua}%</strong><i><b style={{ width: `${active.pua}%` }} /></i></article><article><span>เวียงสา</span><strong>{active.wiangsa}%</strong><i><b style={{ width: `${active.wiangsa}%` }} /></i></article></div></div>
-          <div className="twin-results"><div><span>Visitors</span><strong>{active.visitors}</strong></div><div><span>Income</span><strong>{active.income}</strong></div><div><span>Stay</span><strong>{active.stay}</strong></div><div><span>Communities</span><strong>{active.communities}</strong></div></div>
+          <div className="twin-results opportunity-results"><div><span>นักท่องเที่ยวเพิ่ม</span><strong>{active.visitors}</strong><small>ภายใน Campaign window</small></div><div><span>รายได้โดยประมาณเพิ่ม</span><strong>{active.income}</strong><small>Expected income</small></div><div><span>ชุมชนที่ได้ประโยชน์</span><strong>{active.communities}</strong><small>{active.households}</small></div><div className={`risk-result risk-${active.riskTone}`}><span>ความเสี่ยง</span><strong>{active.risk}</strong><small>{active.riskDetail}</small></div></div>
+          <div className="secondary-outcome"><span>Stay extension</span><strong>{active.stay}</strong><p>AI แนะนำให้เริ่มด้วย Controlled Pilot และติดตามผลจริงก่อนขยาย Campaign</p></div>
           <div className="twin-disclaimer"><span>Mock Simulation</span><p>ผลลัพธ์นี้เป็น scenario estimate สำหรับเปรียบเทียบทางเลือก ไม่ใช่ผลลัพธ์จริง จังหวัดต้องอนุมัติก่อน activate campaign</p><button onClick={() => setSelected(null)}>Reset</button></div>
         </>}
       </div>
@@ -399,7 +401,7 @@ function MissionControl() {
   const sections: Array<{ id: MissionSection; label: string }> = [
     { id: "today", label: "Today’s Decision" },
     { id: "opportunities", label: "Opportunity & Campaign" },
-    { id: "twin", label: "Tourism Digital Twin" },
+    { id: "twin", label: "AI Opportunity Simulator" },
     { id: "forecast", label: "Tourism Health" },
     { id: "impact", label: "KPI & Impact" },
     { id: "evaluation", label: "Evaluation Evidence" },
