@@ -27,11 +27,16 @@ const months = [
   { month: "ธ.ค.", title: "Winter Slow Travel", community: "เมืองน่าน", confidence: 68, state: "full" },
 ];
 
-const needs = [
-  { community: "เวียงสา", need: "กระจายรายได้จากงานย้อมผ้าในเดือนที่นักท่องเที่ยวน้อย", readiness: 92, capacity: 60, status: "พร้อม" },
-  { community: "สันติสุข", need: "เพิ่มการมีส่วนร่วมของครัวเรือนสมุนไพร", readiness: 86, capacity: 32, status: "พร้อม" },
-  { community: "แม่จริม", need: "สร้างมูลค่าเพิ่มจากฤดูเพาะปลูก", readiness: 78, capacity: 24, status: "มีเงื่อนไข" },
-  { community: "ปัว", need: "รักษาระดับกิจกรรมงานช่างปัจจุบัน", readiness: 42, capacity: 0, status: "เต็ม" },
+const communityMissions = [
+  { community: "เวียงสา", period: "This week", travelers: ["Coffee lovers", "Families", "Wellness Travelers"], reason: "เวิร์กช็อปพร้อม แต่ demand ต่ำกว่าเป้าหมาย", readiness: 92 },
+  { community: "สันติสุข", period: "Next 14 days", travelers: ["Wellness Travelers", "Slow Travelers"], reason: "ครัวเรือนสมุนไพรพร้อมรับผู้เดินทางเพิ่ม", readiness: 86 },
+  { community: "แม่จริม", period: "This month", travelers: ["Families", "Culture Seekers"], reason: "ฤดูเพาะปลูกกำลังสร้างประสบการณ์ใหม่", readiness: 78 },
+];
+
+const opportunityFeed = [
+  { title: "Coffee Harvest", timing: "Starts tomorrow", place: "บ่อเกลือ", confidence: 92, audience: "Coffee lovers", color: "lime" },
+  { title: "Textile Learning", timing: "Best window · 8–18 Aug", place: "เวียงสา", confidence: 94, audience: "Craft learners", color: "forest" },
+  { title: "Herbal Retreat", timing: "Demand rising", place: "สันติสุข", confidence: 89, audience: "Wellness Travelers", color: "sun" },
 ];
 
 function Signal({ label, value, tone = "good" }: { label: string; value: string; tone?: "good" | "warn" | "neutral" }) {
@@ -110,36 +115,52 @@ function MissionView({ onNavigate }: { onNavigate: (view: View) => void }) {
 }
 
 function CommunityView() {
+  const [selected, setSelected] = useState(0);
+  const mission = communityMissions[selected];
   return (
     <div className="view-stack">
       <header className="content-header">
-        <div><p className="eyebrow">Community Pulse</p><h1>เริ่มจาก Need<br />ไม่ใช่รายชื่อชุมชน</h1></div>
-        <p>Need คือสิ่งที่ชุมชนประกาศเอง ส่วน readiness, capacity และ experience คือเงื่อนไขที่ทำให้ Need กลายเป็น Opportunity ได้อย่างรับผิดชอบ</p>
+        <div><p className="eyebrow">Community Mission</p><h1>ชุมชนต้องการ<br />นักท่องเที่ยวแบบไหน</h1></div>
+        <p>AI แปล Need ของชุมชนให้เป็นกลุ่มผู้เดินทางที่เหมาะสม พร้อมกำหนดช่วงเวลาโดยไม่เกินขีดความสามารถ</p>
       </header>
-      <div className="need-list">
-        {needs.map((item, index) => (
-          <article className="need-row" key={item.community}>
-            <span className="need-index">0{index + 1}</span>
-            <div className="need-main"><p>{item.community}</p><h2>{item.need}</h2></div>
-            <div className="readiness"><span>Readiness</span><strong>{item.readiness}%</strong><i><b style={{ width: `${item.readiness}%` }} /></i></div>
-            <div className="capacity"><span>รองรับเพิ่ม</span><strong>{item.capacity} คน</strong></div>
-            <span className={`status status-${item.status === "พร้อม" ? "ready" : item.status === "เต็ม" ? "full" : "condition"}`}>{item.status}</span>
-          </article>
-        ))}
-      </div>
+      <section className="community-mission">
+        <div className="community-selector" aria-label="เลือกชุมชน">
+          {communityMissions.map((item, index) => <button key={item.community} onClick={() => setSelected(index)} className={index === selected ? "active" : ""}><span>0{index + 1}</span><strong>{item.community}</strong><small>{item.period}</small></button>)}
+        </div>
+        <div className="mission-statement">
+          <div className="mission-label"><span className="ai-star">✦</span><p>AI says</p></div>
+          <p className="eyebrow">{mission.community} · {mission.period}</p>
+          <h2>This community needs</h2>
+          <div className="traveler-needs">{mission.travelers.map((traveler) => <span key={traveler}>{traveler}</span>)}</div>
+          <p className="mission-reason">{mission.reason}</p>
+          <div className="mission-readiness"><span>Community readiness</span><strong>{mission.readiness}%</strong><i><b style={{ width: `${mission.readiness}%` }} /></i></div>
+        </div>
+      </section>
     </div>
   );
 }
 
 function OpportunityView() {
   const [selected, setSelected] = useState(7);
+  const [generated, setGenerated] = useState<string | null>(null);
   const active = months[selected];
   return (
     <div className="view-stack">
       <header className="content-header compact">
-        <div><p className="eyebrow">Opportunity Calendar</p><h1>12 เดือน<br />12 จังหวะของน่าน</h1></div>
+        <div><p className="eyebrow">AI Opportunity Feed</p><h1>Today’s<br />Opportunities</h1></div>
         <p>ไม่ใช่ปฏิทิน Event แต่คือจังหวะที่ Need, Season, Demand และความพร้อมของชุมชนมาบรรจบกัน</p>
       </header>
+      <section className="opportunity-feed" aria-label="โอกาสวันนี้">
+        {opportunityFeed.map((item, index) => (
+          <article className={`feed-story feed-${item.color}`} key={item.title}>
+            <div className="feed-number">0{index + 1}</div>
+            <div className="feed-copy"><p>{item.place} · {item.audience}</p><h2>{item.title}</h2><strong>{item.timing}</strong></div>
+            <div className="feed-confidence"><span>{item.confidence}%</span><small>AI confidence</small></div>
+            <button onClick={() => setGenerated(item.title)}>{generated === item.title ? "Campaign ready ✓" : "Generate Campaign"}<span>Now →</span></button>
+          </article>
+        ))}
+      </section>
+      <div className="calendar-divider"><span>Explore the 12-month pulse</span></div>
       <div className="month-grid" role="list" aria-label="โอกาสท่องเที่ยว 12 เดือน">
         {months.map((item, index) => (
           <button className={`month-card ${selected === index ? "selected" : ""}`} key={item.month} onClick={() => setSelected(index)}>
@@ -160,9 +181,14 @@ function ForecastView() {
   return (
     <div className="view-stack">
       <header className="content-header compact">
-        <div><p className="eyebrow">Tourism Pulse</p><h1>Demand Forecast<br />สิงหาคม 2569</h1></div>
-        <p>แยก Demand ที่จะเกิดขึ้นเองออกจาก Demand ที่ Nan Pulse ตั้งใจสร้าง เพื่อไม่ส่งนักท่องเที่ยวเกินขีดความสามารถ</p>
+        <div><p className="eyebrow">Tourism Pulse</p><h1>Tourism Health<br />ไม่ใช่ Visitor Count</h1></div>
+        <p>สุขภาพการท่องเที่ยววัดจากความสมดุลของฤดูกาล พื้นที่ รายได้ และ capacity ไม่ใช่การเพิ่มจำนวนนักท่องเที่ยวอย่างเดียว</p>
       </header>
+      <section className="health-card">
+        <div className="health-score" aria-label="Tourism health 78 percent"><span>78</span><small>%</small></div>
+        <div className="health-copy"><p className="eyebrow">Province Tourism Health</p><h2>Balanced</h2><p>โอกาสเริ่มกระจายออกจากเมืองหลักและช่วงฤดูหนาว โดยไม่มีชุมชนใดเกิน capacity guardrail</p></div>
+        <div className="health-signals"><span><b>84</b>Season balance</span><span><b>76</b>Income spread</span><span><b>74</b>Place diversity</span></div>
+      </section>
       <section className="forecast-card">
         <div className="forecast-chart" aria-label="Demand forecast chart">
           {[32, 40, 44, 58, 72, 83, 100].map((value, index) => <i key={index} style={{ height: `${value}%` }}><span>{index + 1}</span></i>)}
@@ -190,9 +216,14 @@ function ImpactView() {
   return (
     <div className="view-stack">
       <header className="content-header compact">
-        <div><p className="eyebrow">Economic Pulse</p><h1>Impact ที่วัดได้<br />ไม่ใช่แค่ Reach</h1></div>
-        <p>มองว่าใครได้ประโยชน์ ที่ไหน เมื่อไร และ guardrail ของชุมชนยังปลอดภัยหรือไม่</p>
+        <div><p className="eyebrow">Mission Feed</p><h1>ทุกการตัดสินใจ<br />ทิ้งร่องรอยของ Impact</h1></div>
+        <p>Activity feed แสดงว่า AI เปลี่ยนทิศทางการเดินทางอย่างไร และโอกาสนั้นกลับไปสู่ชุมชนจริงเท่าไร</p>
       </header>
+      <section className="mission-feed">
+        <article><span className="feed-time">Today · 08:30</span><div className="feed-event"><i>AI redirected</i><strong>42 tourists</strong><span>เมืองน่าน → เวียงสา</span></div><b className="flow-arrow">↓</b><div className="feed-result"><i>Income</i><strong>+92,000</strong><span>บาท · 11 ครัวเรือน</span></div></article>
+        <article><span className="feed-time">Yesterday · 16:10</span><div className="feed-event"><i>Campaign activated</i><strong>Herbal Retreat</strong><span>สันติสุข · 2 ธุรกิจ</span></div><b className="flow-arrow">↓</b><div className="feed-result"><i>Expected stays</i><strong>+24 nights</strong><span>ภายใน 14 วัน</span></div></article>
+        <article><span className="feed-time">12 Jul · 11:45</span><div className="feed-event"><i>Capacity protected</i><strong>18 tourists</strong><span>เปลี่ยนจากปัว → แม่จริม</span></div><b className="flow-arrow">↓</b><div className="feed-result"><i>Balance gained</i><strong>+6%</strong><span>Place diversity</span></div></article>
+      </section>
       <div className="metric-cards">{metrics.map(metric => <article key={metric.label}><span>{metric.label}</span><strong>{metric.value}</strong><em>{metric.delta}</em></article>)}</div>
       <section className="learning-card">
         <div><p className="eyebrow">AI Feedback Loop</p><h2>สิ่งที่ระบบเรียนรู้จากรอบล่าสุด</h2></div>
