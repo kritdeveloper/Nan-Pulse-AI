@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
 import "./globals.css";
 import "./community-signals.css";
+import "./track3-campaign.css";
 
 export async function generateMetadata(): Promise<Metadata> {
   const requestHeaders = await headers();
