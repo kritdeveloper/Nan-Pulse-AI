@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 
 type View = "mission" | "copilot" | "planner";
-type MissionSection = "today" | "opportunities" | "forecast" | "impact";
+type MissionSection = "today" | "opportunities" | "forecast" | "impact" | "evaluation";
 
 const views: Array<{ id: View; label: string; note: string; mark: string }> = [
   { id: "mission", label: "Mission Control", note: "For tourism authorities", mark: "◎" },
@@ -294,6 +294,24 @@ function OfficialDataSources() {
   </section>;
 }
 
+function EvaluationEvidence({ onNavigate }: { onNavigate: (section: MissionSection) => void }) {
+  const criteria: Array<{ score: string; title: string; thesis: string; evidence: string[]; demo: string; section: MissionSection; tone: string }> = [
+    { score: "20", title: "Impact เชิงท่องเที่ยว", thesis: "ตัดสินใจเพื่อเพิ่มกิจกรรมนอกฤดู กระจาย demand และสร้างรายได้ให้พื้นที่รอง", evidence: ["Official baseline + AI estimate แยกชัด", "3 North-star KPIs วัดผลต่อเนื่อง", "Mission Feed เชื่อม Decision กับรายได้จริง"], demo: "เห็นนักท่องเที่ยวถูก redirect 42 คน และผลต่อรายได้/ครัวเรือน", section: "impact", tone: "lime" },
+    { score: "15", title: "ความเข้าใจชุมชน", thesis: "เริ่มจาก Community Need, Readiness และ Capacity ไม่ได้เริ่มจากสถานที่ยอดนิยม", evidence: ["ชุมชนกำหนด Need และ guardrail", "AI เลือกกลุ่มนักท่องเที่ยวที่เหมาะ", "Copilot เปลี่ยน Mission เป็นงานที่ทำได้จริง"], demo: "เห็นว่าเวียงสารับได้อีก 60 คน ขณะที่ปัวถูกตัดออกเพราะเต็ม", section: "today", tone: "forest" },
+    { score: "15", title: "ความคิดสร้างสรรค์", thesis: "Opportunity Exchange เปลี่ยนทรัพยากรที่ยังไม่ถูกใช้ให้เป็นโอกาส 12 เดือน", evidence: ["ไม่ใช่ dashboard หรือ travel search", "Seasonal Campaign จาก calendar จริง", "Closed-loop: Decision → Action → Learning"], demo: "เลือกเดือนแล้ว AI สร้าง seasonal campaign พร้อม target และ impact", section: "opportunities", tone: "sun" },
+    { score: "15", title: "การใช้ AI", thesis: "AI ทำหน้าที่ตัดสินใจ คาดการณ์ อธิบาย จับคู่ สร้างแคมเปญ และเรียนรู้ผลลัพธ์", evidence: ["Decision มี Reason + Confidence", "Forecast และ matching มี capacity guardrail", "Human approval ก่อน activate campaign"], demo: "กรรมการเห็น input → decision → reason → expected impact ใน flow เดียว", section: "forecast", tone: "coral" },
+  ];
+  return <div className="view-stack">
+    <header className="content-header compact"><div><p className="eyebrow">Evaluation Evidence · 65 points shown</p><h1>ทุกคะแนน<br />มีหลักฐานใน Product</h1></div><p>หน้านี้ไม่ประเมินคะแนนแทนกรรมการ แต่ชี้ให้เห็นว่าแต่ละเกณฑ์พิสูจน์ได้จากจุดใดของระบบและควรสาธิตอย่างไร</p></header>
+    <section className="criteria-board">{criteria.map((item, index) => <article className={`criteria-card criteria-${item.tone}`} key={item.title}>
+      <div className="criteria-score"><strong>{item.score}</strong><span>คะแนน<br />สูงสุด</span></div>
+      <div className="criteria-copy"><p>Criterion 0{index + 1}</p><h2>{item.title}</h2><strong>{item.thesis}</strong><ul>{item.evidence.map(point => <li key={point}>{point}</li>)}</ul></div>
+      <div className="criteria-demo"><span>Demo proof</span><p>{item.demo}</p><button onClick={() => onNavigate(item.section)}>ดูหลักฐานในระบบ →</button></div>
+    </article>)}</section>
+    <section className="judge-flow"><div><p className="eyebrow">3-minute judge flow</p><h2>หนึ่ง Decision<br />พิสูจน์ครบ 4 เกณฑ์</h2></div><ol><li><span>00:00</span><strong>Official Pulse</strong><p>สถานการณ์จริงและปัญหาการกระจาย</p></li><li><span>00:35</span><strong>AI Decision</strong><p>เลือกเวียงสา พร้อม Reason และ Confidence</p></li><li><span>01:15</span><strong>Community Action</strong><p>Copilot สร้าง campaign จาก Mission</p></li><li><span>02:00</span><strong>Adaptive Delivery</strong><p>จับคู่ experience ให้ผู้เดินทาง</p></li><li><span>02:35</span><strong>Impact Loop</strong><p>แสดง KPI และสิ่งที่ AI เรียนรู้</p></li></ol></section>
+  </div>;
+}
+
 function MissionControl() {
   const [section, setSection] = useState<MissionSection>("today");
   const sections: Array<{ id: MissionSection; label: string }> = [
@@ -301,15 +319,18 @@ function MissionControl() {
     { id: "opportunities", label: "Opportunity & Campaign" },
     { id: "forecast", label: "Tourism Health" },
     { id: "impact", label: "KPI & Impact" },
+    { id: "evaluation", label: "Evaluation Evidence" },
   ];
   return <div className="product-workspace">
     <header className="workspace-identity"><div><p className="eyebrow">01 · Provincial Decision System</p><h1>Mission Control</h1></div><p>ระบบตัดสินใจว่า “จังหวัดควรสร้างโอกาสที่ไหน เมื่อไร และให้ใคร” ก่อนส่ง Decision ไปสู่แคมเปญ ชุมชน และการเดินทางจริง</p></header>
     <section className="decision-doctrine"><div><span>Nan Pulse is</span><strong>ระบบการตัดสินใจ</strong></div><b>≠</b><div><span>Nan Pulse is not</span><strong>ระบบแนะนำสถานที่</strong></div><ol><li>Community Need</li><li>AI Decision</li><li>Campaign</li><li>Experience</li><li>Impact</li></ol></section>
+    <section className="criteria-ribbon" aria-label="เกณฑ์การให้คะแนน"><button onClick={() => setSection("impact")}><strong>20</strong><span>Impact เชิงท่องเที่ยว</span></button><button onClick={() => setSection("today")}><strong>15</strong><span>ความเข้าใจชุมชน</span></button><button onClick={() => setSection("opportunities")}><strong>15</strong><span>ความคิดสร้างสรรค์</span></button><button onClick={() => setSection("evaluation")}><strong>15</strong><span>การใช้ AI</span></button></section>
     <nav className="workspace-tabs" aria-label="เครื่องมือ Mission Control">{sections.map(item => <button key={item.id} className={section === item.id ? "active" : ""} onClick={() => setSection(item.id)}>{item.label}</button>)}</nav>
     {section === "today" && <MissionView onNavigate={() => setSection("opportunities")} />}
     {section === "opportunities" && <OpportunityView />}
     {section === "forecast" && <ForecastView />}
     {section === "impact" && <ImpactView />}
+    {section === "evaluation" && <EvaluationEvidence onNavigate={setSection} />}
     <OfficialDataSources />
   </div>;
 }
