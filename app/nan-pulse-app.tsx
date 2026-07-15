@@ -223,24 +223,32 @@ function ForecastView() {
 }
 
 function ImpactView() {
-  const metrics = [
-    { label: "โอกาสนอกช่วงพีค", value: "64%", delta: "+18%" },
-    { label: "ชุมชนที่ได้รับประโยชน์", value: "18", delta: "+6" },
-    { label: "รายได้ท้องถิ่น", value: "2.4M", delta: "+21%" },
-    { label: "คืนพักเพิ่มเติม", value: "486", delta: "+14%" },
+  const kpis = [
+    { number: "01", title: "Increase Off-Season Experiences", description: "เพิ่มกิจกรรมที่ดึงดูดนักท่องเที่ยวในเดือนที่ไม่ใช่ High Season", value: "38", unit: "experiences", target: "เป้าหมาย 50", progress: 76, change: "+12 ไตรมาสนี้", measure: "จำนวนกิจกรรมที่เปิดขายหรือจัดจริงใน 8 เดือนนอกฤดูพีค" },
+    { number: "02", title: "Increase Community Participation", description: "เพิ่มจำนวนชุมชนและผู้ประกอบการที่เข้าร่วมและสร้างกิจกรรมผ่านระบบ", value: "31", unit: "communities", target: "เป้าหมาย 40", progress: 78, change: "+9 ชุมชน", measure: "ชุมชนที่มี Need, Capacity และกิจกรรม Active อย่างน้อย 1 รายการ" },
+    { number: "03", title: "Improve Tourism Distribution", description: "กระจายนักท่องเที่ยวและโอกาสทางเศรษฐกิจไปยังพื้นที่ที่ยังไม่เป็นที่รู้จัก", value: "64", unit: "% distributed", target: "เป้าหมาย 75%", progress: 85, change: "+18 จุด", measure: "สัดส่วนผู้เดินทางที่ถูกส่งไปยังพื้นที่รองหรือนอกช่วง High Season" },
   ];
   return (
     <div className="view-stack">
       <header className="content-header compact">
-        <div><p className="eyebrow">Mission Feed</p><h1>ทุกการตัดสินใจ<br />ทิ้งร่องรอยของ Impact</h1></div>
-        <p>Activity feed แสดงว่า AI เปลี่ยนทิศทางการเดินทางอย่างไร และโอกาสนั้นกลับไปสู่ชุมชนจริงเท่าไร</p>
+        <div><p className="eyebrow">Three North-star KPIs</p><h1>วัดเพียง 3 สิ่ง<br />ที่เปลี่ยนน่านจริง</h1></div>
+        <p>ทุก Decision, Campaign และ Impact ใน Nan Pulse ต้องขยับ KPI อย่างน้อยหนึ่งข้อ โดยไม่เพิ่มตัวชี้วัดหลักอื่นมารบกวนทิศทาง</p>
       </header>
+      <section className="kpi-cards" aria-label="ตัวชี้วัดหลักของ Nan Pulse">
+        {kpis.map(kpi => <article key={kpi.number}>
+          <div className="kpi-heading"><span>{kpi.number}</span><div><p>Primary KPI</p><h2>{kpi.title}</h2></div></div>
+          <p className="kpi-description">{kpi.description}</p>
+          <div className="kpi-value"><strong>{kpi.value}</strong><span>{kpi.unit}</span><em>{kpi.change}</em></div>
+          <div className="kpi-progress"><i><b style={{ width: `${kpi.progress}%` }} /></i><span>{kpi.target}</span></div>
+          <div className="kpi-measure"><span>How we measure</span><p>{kpi.measure}</p></div>
+        </article>)}
+      </section>
+      <div className="calendar-divider"><span>Evidence from recent missions</span></div>
       <section className="mission-feed">
         <article><span className="feed-time">Today · 08:30</span><div className="feed-event"><i>AI redirected</i><strong>42 tourists</strong><span>เมืองน่าน → เวียงสา</span></div><b className="flow-arrow">↓</b><div className="feed-result"><i>Income</i><strong>+92,000</strong><span>บาท · 11 ครัวเรือน</span></div></article>
         <article><span className="feed-time">Yesterday · 16:10</span><div className="feed-event"><i>Campaign activated</i><strong>Herbal Retreat</strong><span>สันติสุข · 2 ธุรกิจ</span></div><b className="flow-arrow">↓</b><div className="feed-result"><i>Expected stays</i><strong>+24 nights</strong><span>ภายใน 14 วัน</span></div></article>
         <article><span className="feed-time">12 Jul · 11:45</span><div className="feed-event"><i>Capacity protected</i><strong>18 tourists</strong><span>เปลี่ยนจากปัว → แม่จริม</span></div><b className="flow-arrow">↓</b><div className="feed-result"><i>Balance gained</i><strong>+6%</strong><span>Place diversity</span></div></article>
       </section>
-      <div className="metric-cards">{metrics.map(metric => <article key={metric.label}><span>{metric.label}</span><strong>{metric.value}</strong><em>{metric.delta}</em></article>)}</div>
       <section className="learning-card">
         <div><p className="eyebrow">AI Feedback Loop</p><h2>สิ่งที่ระบบเรียนรู้จากรอบล่าสุด</h2></div>
         <ol>
