@@ -67,15 +67,19 @@ function DecisionConfidence({ value, factors = ["Weather", "Demand", "Season", "
 }
 
 function MissionView({ onNavigate }: { onNavigate: () => void }) {
-  const [approved, setApproved] = useState(false);
+  const [executed, setExecuted] = useState(false);
   const [flowActive, setFlowActive] = useState(false);
   return (
     <div className="view-stack">
-      <section className="decision-hero" aria-labelledby="today-decision">
+      <section className={`decision-hero killer-moment ${executed ? "mission-executed" : ""}`} aria-labelledby="today-decision">
+        <div className="moment-status">
+          <span><i aria-hidden="true">✦</i> Nan Pulse · New Opportunity Detected</span>
+          <em>Demo Simulation · ไม่มีการส่งข้อมูลจริง</em>
+        </div>
         <div className="decision-topline">
           <div>
-            <p className="eyebrow">Good Morning · Proactive Mission</p>
-            <h1 id="today-decision">Tomorrow, Coffee<br />Harvest starts.</h1>
+            <p className="eyebrow">AI Mission · เวียงสา · This week</p>
+            <h1 id="today-decision">ผมพบโอกาสใหม่ที่จะช่วยสร้างรายได้ให้ 18 ครัวเรือนในเวียงสาสัปดาห์นี้</h1>
           </div>
           <div className="confidence-ring" aria-label="AI confidence 94 percent">
             <span>94</span><small>%</small>
@@ -83,14 +87,33 @@ function MissionView({ onNavigate }: { onNavigate: () => void }) {
           </div>
         </div>
 
-        <p className="decision-copy">We recommend launching <strong>“Coffee Route Campaign”</strong> วันนี้ เพื่อดึง Coffee Lovers จากพื้นที่หนาแน่นไปยังสวนกาแฟและชุมชนที่พร้อมรับนักท่องเที่ยว คาดว่าจะสร้างรายได้เพิ่ม <strong>+120,000 THB</strong></p>
+        <p className="decision-copy">คุณต้องการให้ผม <strong>สร้างแคมเปญและปรับเส้นทางนักท่องเที่ยวอัตโนมัติ</strong> หรือไม่?</p>
         <DecisionConfidence value={94} dark />
 
         <div className="decision-actions">
-          <button className="primary-action" onClick={() => setApproved(true)} disabled={approved}>
-            {approved ? "Coffee Route approved ✓" : "Approve Coffee Route Campaign"}
+          <button className="primary-action execute-action" onClick={() => setExecuted(true)} disabled={executed}>
+            {executed ? "Mission Executed ✓" : "Execute Mission"}
           </button>
-          <button className="text-action" onClick={onNavigate}>ดูโอกาสเดือนอื่น <span>→</span></button>
+          {!executed && <button className="text-action" onClick={onNavigate}>ตรวจสอบโอกาสก่อน <span>→</span></button>}
+        </div>
+
+        <div className="execution-console" aria-live="polite">
+          <div className="execution-head">
+            <span>{executed ? "Execution complete · 4 actions" : "Ready to execute · 4 actions"}</span>
+            <strong>{executed ? "จังหวัดอนุมัติแล้ว" : "รอการอนุมัติจากจังหวัด"}</strong>
+          </div>
+          <div className="execution-steps">
+            <article className={executed ? "complete" : ""}><b>01</b><i>◆</i><span>Create Campaign</span><strong>Wiang Sa Textile Week</strong><small>{executed ? "Campaign created" : "Prepared by Campaign Engine"}</small></article>
+            <article className={executed ? "complete" : ""}><b>02</b><i>⌂</i><span>Notify Community</span><strong>18 ครัวเรือน · 7 ธุรกิจ</strong><small>{executed ? "Community notified" : "Awaiting approval"}</small></article>
+            <article className={executed ? "complete" : ""}><b>03</b><i>↗</i><span>Update Tourist Journey</span><strong>Redirect 42 travelers</strong><small>{executed ? "Recommendation updated" : "ปัว → เวียงสา"}</small></article>
+            <article className={executed ? "complete" : ""}><b>04</b><i>◎</i><span>Simulate Impact</span><strong>+120,000 THB</strong><small>{executed ? "+0.6 day stay" : "Ready to simulate"}</small></article>
+          </div>
+          {executed && <div className="moment-simulation">
+            <div><span>Before AI</span><strong>ปัว 80%</strong><i>เวียงสา 3%</i></div>
+            <b aria-hidden="true">→</b>
+            <div><span>After AI</span><strong>ปัว 55%</strong><i>เวียงสา 18%</i></div>
+            <div className="simulation-impact"><span>Expected Impact</span><strong>18 ครัวเรือน</strong><i>+120,000 บาท · +0.6 วันพัก</i></div>
+          </div>}
         </div>
       </section>
 
@@ -382,11 +405,11 @@ function MissionControl() {
     { id: "evaluation", label: "Evaluation Evidence" },
   ];
   return <div className="product-workspace">
-    <header className="workspace-identity"><div><p className="eyebrow">01 · Provincial Decision System</p><h1>Mission Control</h1></div><p>ระบบตัดสินใจว่า “จังหวัดควรสร้างโอกาสที่ไหน เมื่อไร และให้ใคร” ก่อนส่ง Decision ไปสู่แคมเปญ ชุมชน และการเดินทางจริง</p></header>
-    <section className="decision-doctrine"><div><span>Nan Pulse is</span><strong>ระบบการตัดสินใจ</strong></div><b>≠</b><div><span>Nan Pulse is not</span><strong>ระบบแนะนำสถานที่</strong></div><ol><li>AI Detects</li><li>Signals</li><li>Campaign</li><li>Redirect</li><li>Impact</li></ol></section>
-    <section className="criteria-ribbon" aria-label="เกณฑ์การให้คะแนน"><button onClick={() => setSection("impact")}><strong>20</strong><span>Impact เชิงท่องเที่ยว</span></button><button onClick={() => setSection("today")}><strong>15</strong><span>ความเข้าใจชุมชน</span></button><button onClick={() => setSection("twin")}><strong>15</strong><span>ความคิดสร้างสรรค์</span></button><button onClick={() => setSection("evaluation")}><strong>15</strong><span>การใช้ AI</span></button></section>
     <nav className="workspace-tabs" aria-label="เครื่องมือ Mission Control">{sections.map(item => <button key={item.id} className={section === item.id ? "active" : ""} onClick={() => setSection(item.id)}>{item.label}</button>)}</nav>
     {section === "today" && <MissionView onNavigate={() => setSection("opportunities")} />}
+    {section !== "today" && <header className="workspace-identity"><div><p className="eyebrow">01 · Provincial Decision System</p><h1>Mission Control</h1></div><p>ระบบตัดสินใจว่า “จังหวัดควรสร้างโอกาสที่ไหน เมื่อไร และให้ใคร” ก่อนส่ง Decision ไปสู่แคมเปญ ชุมชน และการเดินทางจริง</p></header>}
+    {section !== "today" && <section className="decision-doctrine"><div><span>Nan Pulse is</span><strong>ระบบการตัดสินใจ</strong></div><b>≠</b><div><span>Nan Pulse is not</span><strong>ระบบแนะนำสถานที่</strong></div><ol><li>AI Detects</li><li>Signals</li><li>Campaign</li><li>Redirect</li><li>Impact</li></ol></section>}
+    {section !== "today" && <section className="criteria-ribbon" aria-label="เกณฑ์การให้คะแนน"><button onClick={() => setSection("impact")}><strong>20</strong><span>Impact เชิงท่องเที่ยว</span></button><button onClick={() => setSection("today")}><strong>15</strong><span>ความเข้าใจชุมชน</span></button><button onClick={() => setSection("twin")}><strong>15</strong><span>ความคิดสร้างสรรค์</span></button><button onClick={() => setSection("evaluation")}><strong>15</strong><span>การใช้ AI</span></button></section>}
     {section === "opportunities" && <OpportunityView />}
     {section === "twin" && <TourismDigitalTwin />}
     {section === "forecast" && <ForecastView />}
