@@ -351,13 +351,7 @@ function OfficialDataSources() {
   </section>;
 }
 
-function EvaluationEvidence({ onNavigate }: { onNavigate: (section: MissionSection) => void }) {
-  const criteria: Array<{ score: string; title: string; thesis: string; evidence: string[]; demo: string; section: MissionSection; tone: string }> = [
-    { score: "20", title: "Impact เชิงท่องเที่ยว", thesis: "ตัดสินใจเพื่อเพิ่มกิจกรรมนอกฤดู กระจาย demand และสร้างรายได้ให้พื้นที่รอง", evidence: ["Official baseline + AI estimate แยกชัด", "3 North-star KPIs วัดผลต่อเนื่อง", "Mission Feed เชื่อม Decision กับรายได้จริง"], demo: "เห็นนักท่องเที่ยวถูก redirect 42 คน และผลต่อรายได้/ครัวเรือน", section: "impact", tone: "lime" },
-    { score: "15", title: "ความเข้าใจชุมชน", thesis: "เริ่มจาก Community Need, Readiness และ Capacity ไม่ได้เริ่มจากสถานที่ยอดนิยม", evidence: ["ชุมชนกำหนด Need และ guardrail", "AI เลือกกลุ่มนักท่องเที่ยวที่เหมาะ", "Copilot เปลี่ยน Mission เป็นงานที่ทำได้จริง"], demo: "เห็นว่าเวียงสารับได้อีก 60 คน ขณะที่ปัวถูกตัดออกเพราะเต็ม", section: "today", tone: "forest" },
-    { score: "15", title: "ความคิดสร้างสรรค์", thesis: "AI Opportunity Simulator จำลองทั้งผลตอบแทนและความเสี่ยงก่อนจังหวัดตัดสินใจจริง", evidence: ["ไม่ใช่ dashboard หรือ travel search", "กด Scenario เพื่อเห็น Before/After", "Closed-loop: Decision → Action → Learning"], demo: "กดโปรโมตกาแฟเดือนกรกฎาคม แล้วเห็น visitors, income, communities และ risk ทันที", section: "twin", tone: "sun" },
-    { score: "15", title: "การใช้ AI", thesis: "AI ทำหน้าที่ตัดสินใจ คาดการณ์ อธิบาย จับคู่ สร้างแคมเปญ และเรียนรู้ผลลัพธ์", evidence: ["Decision มี Reason + Confidence", "Forecast และ matching มี capacity guardrail", "Human approval ก่อน activate campaign"], demo: "กรรมการเห็น input → decision → reason → expected impact ใน flow เดียว", section: "forecast", tone: "coral" },
-  ];
+function ValidationLearning() {
   return <div className="view-stack">
     <header className="content-header compact"><div><p className="eyebrow">Validation & Learning · Design Thinking + Agile</p><h1>จากปัญหา<br />สู่หลักฐานที่วัดได้</h1></div><p>Nan Pulse AI แยกสิ่งที่รู้จริง สิ่งที่ AI คาดการณ์ และสิ่งที่ยังต้องพิสูจน์ภาคสนาม เพื่อให้ Prototype เติบโตเป็นระบบที่ชุมชนใช้งานได้จริง</p></header>
 
@@ -408,12 +402,6 @@ function EvaluationEvidence({ onNavigate }: { onNavigate: (section: MissionSecti
 
     <section className="year-value-proof"><div><p className="eyebrow">12-Month Value Proposition</p><h2>สร้างเหตุผลให้เดินทางทุกฤดูกาล</h2></div><div><strong>12/12</strong><span>เดือนมี Opportunity</span></div><div><strong>Culture</strong><span>เทศกาล · ผ้าทอ · วิถีชุมชน</span></div><div><strong>Wellness</strong><span>ป่า · สมุนไพร · Slow travel</span></div><div><strong>Food</strong><span>กาแฟ · อาหารพื้นเมือง · Harvest</span></div></section>
 
-    <section className="criteria-board">{criteria.map((item, index) => <article className={`criteria-card criteria-${item.tone}`} key={item.title}>
-      <div className="criteria-score"><strong>{item.score}</strong><span>คะแนน<br />สูงสุด</span></div>
-      <div className="criteria-copy"><p>Criterion 0{index + 1}</p><h2>{item.title}</h2><strong>{item.thesis}</strong><ul>{item.evidence.map(point => <li key={point}>{point}</li>)}</ul></div>
-      <div className="criteria-demo"><span>Demo proof</span><p>{item.demo}</p><button onClick={() => onNavigate(item.section)}>ดูหลักฐานในระบบ →</button></div>
-    </article>)}</section>
-    <section className="judge-flow"><div><p className="eyebrow">3-minute judge flow</p><h2>หนึ่ง Decision<br />พิสูจน์ครบ 4 เกณฑ์</h2></div><ol><li><span>00:00</span><strong>Official Pulse</strong><p>สถานการณ์จริงและปัญหาการกระจาย</p></li><li><span>00:35</span><strong>AI Decision</strong><p>เลือกเวียงสา พร้อม Reason และ Confidence</p></li><li><span>01:15</span><strong>Community Action</strong><p>Copilot สร้าง campaign จาก Mission</p></li><li><span>02:00</span><strong>Adaptive Delivery</strong><p>จับคู่ experience ให้ผู้เดินทาง</p></li><li><span>02:35</span><strong>Impact Loop</strong><p>แสดง KPI และสิ่งที่ AI เรียนรู้</p></li></ol></section>
   </div>;
 }
 
@@ -459,12 +447,11 @@ function MissionControl() {
     {section === "today" && <MissionView onNavigate={() => setSection("opportunities")} />}
     {section !== "today" && <header className="workspace-identity"><div><p className="eyebrow">01 · Provincial Decision System</p><h1>Mission Control</h1></div><p>ระบบตัดสินใจว่า “จังหวัดควรสร้างโอกาสที่ไหน เมื่อไร และให้ใคร” ก่อนส่ง Decision ไปสู่แคมเปญ ชุมชน และการเดินทางจริง</p></header>}
     {section !== "today" && <section className="decision-doctrine"><div><span>Nan Pulse AI is</span><strong>ระบบการตัดสินใจ</strong></div><b>≠</b><div><span>Nan Pulse AI is not</span><strong>ระบบแนะนำสถานที่</strong></div><ol><li>AI Detects</li><li>Signals</li><li>Campaign</li><li>Redirect</li><li>Impact</li></ol></section>}
-    {section !== "today" && <section className="criteria-ribbon" aria-label="เกณฑ์การให้คะแนน"><button onClick={() => setSection("impact")}><strong>20</strong><span>Impact เชิงท่องเที่ยว</span></button><button onClick={() => setSection("today")}><strong>15</strong><span>ความเข้าใจชุมชน</span></button><button onClick={() => setSection("twin")}><strong>15</strong><span>ความคิดสร้างสรรค์</span></button><button onClick={() => setSection("evaluation")}><strong>15</strong><span>การใช้ AI</span></button></section>}
     {section === "opportunities" && <OpportunityView />}
     {section === "twin" && <TourismDigitalTwin />}
     {section === "forecast" && <ForecastView />}
     {section === "impact" && <ImpactView />}
-    {section === "evaluation" && <EvaluationEvidence onNavigate={setSection} />}
+    {section === "evaluation" && <ValidationLearning />}
     <OfficialDataSources />
   </div>;
 }
@@ -533,7 +520,7 @@ export function NanPulseApp() {
       </aside>
 
       <section className="main-area">
-        <header className="topbar"><div><span className="mobile-mark">AI</span><p>{current.label}</p></div><div className="topbar-actions"><button aria-label="การแจ้งเตือน">●<span>2</span></button><div className="profile"><span>NP</span><div><strong>{view === "mission" ? "ทีมยุทธศาสตร์ท่องเที่ยว" : view === "copilot" ? "เครือข่ายชุมชนน่าน" : "Nan Explorer"}</strong><small>{view === "mission" ? "จังหวัดน่าน" : view === "copilot" ? "Local operator workspace" : "Adaptive journey"}</small></div></div></div></header>
+        <header className="topbar"><div><span className="mobile-mark">AI</span><p>{current.label}</p></div><span className="topbar-purpose">Decision → Local Value → 12 Months</span></header>
         <div className="content-area">
           {view === "mission" && <MissionControl />}
           {view === "copilot" && <CommunityCopilot />}
