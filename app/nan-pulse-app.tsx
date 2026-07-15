@@ -7,7 +7,7 @@ type View = "mission" | "community" | "opportunity" | "forecast" | "impact";
 const views: Array<{ id: View; label: string; note: string; mark: string }> = [
   { id: "mission", label: "Mission Control", note: "Today’s Decision", mark: "◎" },
   { id: "community", label: "Community Pulse", note: "Needs & readiness", mark: "⌂" },
-  { id: "opportunity", label: "Opportunity", note: "12-month pulse", mark: "◇" },
+  { id: "opportunity", label: "Opportunity Exchange", note: "Unused potential", mark: "◇" },
   { id: "forecast", label: "Forecast", note: "Demand outlook", mark: "↗" },
   { id: "impact", label: "Economic Pulse", note: "Impact & learning", mark: "◉" },
 ];
@@ -34,9 +34,10 @@ const communityMissions = [
 ];
 
 const opportunityFeed = [
-  { title: "Coffee Harvest", timing: "Starts tomorrow", place: "บ่อเกลือ", confidence: 92, audience: "Coffee lovers", color: "lime" },
-  { title: "Textile Learning", timing: "Best window · 8–18 Aug", place: "เวียงสา", confidence: 94, audience: "Craft learners", color: "forest" },
-  { title: "Herbal Retreat", timing: "Demand rising", place: "สันติสุข", confidence: 89, audience: "Wellness Travelers", color: "sun" },
+  { id: "workshop", type: "Workshop", place: "บ้านดอนไชย · เวียงสา", title: "ชุมชนพร้อมจัดเวิร์กช็อป แต่ยังไม่มีนักท่องเที่ยว", timing: "Available now · 60 seats", confidence: 94, campaign: "Textile Learning Week", audiences: ["Craft learners", "Families"], income: "+92,000 บาท", households: "11 ครัวเรือน", priority: "Promote now" },
+  { id: "harvest", type: "Seasonal window", place: "สวนกาแฟมณีพฤกษ์ · ทุ่งช้าง", title: "ฤดูเก็บเกี่ยวกาแฟจะเริ่มในอีก 5 วัน", timing: "Window · 20–31 Jul", confidence: 92, campaign: "First Harvest Journey", audiences: ["Coffee lovers", "Slow travelers"], income: "+148,000 บาท", households: "8 ครัวเรือน", priority: "Prepare today" },
+  { id: "festival", type: "Promotion gap", place: "เทศกาลดนตรีไทลื้อ · ปัว", title: "เทศกาลพร้อมแล้ว แต่ยังไม่มีแคมเปญโปรโมต", timing: "Starts in 12 days", confidence: 87, campaign: "Tai Lue After Dark", audiences: ["Culture seekers", "Young travelers"], income: "+210,000 บาท", households: "17 ธุรกิจ", priority: "Campaign needed" },
+  { id: "route", type: "Weather window", place: "เส้นทางแม่จริม–น้ำว้า", title: "เส้นทางนี้มีอากาศดีที่สุดในสัปดาห์นี้", timing: "Best conditions · 4 days", confidence: 89, campaign: "Green Route This Week", audiences: ["Outdoor travelers", "Wellness Travelers"], income: "+76,000 บาท", households: "6 ธุรกิจ", priority: "Time-sensitive" },
 ];
 
 function Signal({ label, value, tone = "good" }: { label: string; value: string; tone?: "good" | "warn" | "neutral" }) {
@@ -143,24 +144,39 @@ function CommunityView() {
 function OpportunityView() {
   const [selected, setSelected] = useState(7);
   const [generated, setGenerated] = useState<string | null>(null);
+  const [exchangeFilter, setExchangeFilter] = useState("All opportunities");
   const active = months[selected];
   return (
     <div className="view-stack">
       <header className="content-header compact">
-        <div><p className="eyebrow">AI Opportunity Feed</p><h1>Today’s<br />Opportunities</h1></div>
-        <p>ไม่ใช่ปฏิทิน Event แต่คือจังหวะที่ Need, Season, Demand และความพร้อมของชุมชนมาบรรจบกัน</p>
+        <div><p className="eyebrow">AI Opportunity Exchange</p><h1>โอกาสที่จังหวัด<br />ยังไม่ได้ใช้</h1></div>
+        <p>พื้นที่ทำงานสำหรับจังหวัด ไม่ใช่หน้าค้นหาของนักท่องเที่ยว AI ตรวจจับ resource ที่พร้อม แต่ยังขาด demand, promotion หรือจังหวะลงมือทำ</p>
       </header>
-      <section className="opportunity-feed" aria-label="โอกาสวันนี้">
-        {opportunityFeed.map((item, index) => (
-          <article className={`feed-story feed-${item.color}`} key={item.title}>
-            <div className="feed-number">0{index + 1}</div>
-            <div className="feed-copy"><p>{item.place} · {item.audience}</p><h2>{item.title}</h2><strong>{item.timing}</strong></div>
-            <div className="feed-confidence"><span>{item.confidence}%</span><small>AI confidence</small></div>
-            <button onClick={() => setGenerated(item.title)}>{generated === item.title ? "Campaign ready ✓" : "Generate Campaign"}<span>Now →</span></button>
+      <section className="exchange-summary" aria-label="สรุปโอกาสที่ยังไม่ถูกใช้">
+        <div><span>Unused opportunities</span><strong>12</strong><small>ตรวจพบทั่วจังหวัด</small></div>
+        <div><span>Potential local income</span><strong>526K</strong><small>บาท · 30 วันข้างหน้า</small></div>
+        <div><span>Time-sensitive</span><strong>4</strong><small>ควรตัดสินใจภายในสัปดาห์นี้</small></div>
+        <div className="exchange-health"><span>Exchange pulse</span><strong>High potential</strong><small><i><b style={{ width: "82%" }} /></i> 82%</small></div>
+      </section>
+      <div className="exchange-toolbar">
+        <div><span className="live-dot" /><strong>AI scanning 50 communities</strong><small>อัปเดตล่าสุด 08:30</small></div>
+        <div role="group" aria-label="กรองประเภทโอกาส">{["All opportunities", "Time-sensitive", "Campaign needed"].map(filter => <button key={filter} className={exchangeFilter === filter ? "active" : ""} onClick={() => setExchangeFilter(filter)}>{filter}</button>)}</div>
+      </div>
+      <section className="exchange-list" aria-label="รายการโอกาสที่ยังไม่ถูกใช้">
+        {opportunityFeed.filter(item => exchangeFilter === "All opportunities" || item.priority === exchangeFilter).map((item, index) => (
+          <article className="exchange-item" key={item.id}>
+            <div className="exchange-rank"><span>0{index + 1}</span><i>{item.priority}</i></div>
+            <div className="exchange-gap"><p>{item.type} · {item.place}</p><h2>{item.title}</h2><span>{item.timing}</span></div>
+            <div className="exchange-proposal">
+              <p>AI proposed campaign</p><strong>{item.campaign}</strong>
+              <div>{item.audiences.map(audience => <span key={audience}>{audience}</span>)}</div>
+            </div>
+            <div className="exchange-impact"><p>Expected economic impact</p><strong>{item.income}</strong><span>{item.households}</span><em>{item.confidence}% confidence</em></div>
+            <button className="exchange-cta" onClick={() => setGenerated(item.id)}>{generated === item.id ? "Campaign ready ✓" : "Generate campaign"}<span>→</span></button>
           </article>
         ))}
       </section>
-      <div className="calendar-divider"><span>Explore the 12-month pulse</span></div>
+      <div className="calendar-divider"><span>12-month opportunity horizon</span></div>
       <div className="month-grid" role="list" aria-label="โอกาสท่องเที่ยว 12 เดือน">
         {months.map((item, index) => (
           <button className={`month-card ${selected === index ? "selected" : ""}`} key={item.month} onClick={() => setSelected(index)}>
