@@ -13,18 +13,18 @@ const views: Array<{ id: View; label: string; note: string; mark: string }> = [
 ];
 
 const months = [
-  { month: "ม.ค.", title: "Coffee Harvest", community: "บ่อเกลือ", confidence: 92, state: "recommended" },
-  { month: "ก.พ.", title: "Craft & Flowers", community: "ท่าวังผา", confidence: 81, state: "ready" },
-  { month: "มี.ค.", title: "Dry Season Food", community: "นาน้อย", confidence: 74, state: "watch" },
-  { month: "เม.ย.", title: "Herbal Retreat", community: "สันติสุข", confidence: 89, state: "recommended" },
-  { month: "พ.ค.", title: "Planting Stories", community: "แม่จริม", confidence: 78, state: "ready" },
-  { month: "มิ.ย.", title: "Forest After Rain", community: "สองแคว", confidence: 84, state: "ready" },
-  { month: "ก.ค.", title: "Rice & Rivers", community: "ภูเพียง", confidence: 76, state: "watch" },
-  { month: "ส.ค.", title: "Textile Learning", community: "เวียงสา", confidence: 94, state: "active" },
-  { month: "ก.ย.", title: "Forest Food", community: "เชียงกลาง", confidence: 82, state: "ready" },
-  { month: "ต.ค.", title: "Harvest Community", community: "บ้านหลวง", confidence: 87, state: "recommended" },
-  { month: "พ.ย.", title: "Cultural Routes", community: "ปัว", confidence: 71, state: "watch" },
-  { month: "ธ.ค.", title: "Winter Slow Travel", community: "เมืองน่าน", confidence: 68, state: "full" },
+  { month: "ม.ค.", title: "Coffee Harvest", community: "บ่อเกลือ", confidence: 92, state: "recommended", campaign: "Nan First Harvest", audience: "Coffee lovers", window: "10–28 ม.ค.", channels: "Creator stories · Café partners", impact: "+148K บาท", kpi: "Off-season experiences", need: "High", season: "Peak harvest", demand: "Growing" },
+  { month: "ก.พ.", title: "Craft & Flowers", community: "ท่าวังผา", confidence: 81, state: "ready", campaign: "Craft in Bloom", audience: "Families", window: "3–18 ก.พ.", channels: "Family media · Schools", impact: "+84K บาท", kpi: "Community participation", need: "Medium", season: "Good", demand: "Stable" },
+  { month: "มี.ค.", title: "Dry Season Food", community: "นาน้อย", confidence: 74, state: "watch", campaign: "Nan Dry Table", audience: "Food explorers", window: "8–24 มี.ค.", channels: "Food creators · PR", impact: "+69K บาท", kpi: "Tourism distribution", need: "High", season: "Short window", demand: "Low" },
+  { month: "เม.ย.", title: "Herbal Retreat", community: "สันติสุข", confidence: 89, state: "recommended", campaign: "Cool Down in Nan", audience: "Wellness Travelers", window: "4–21 เม.ย.", channels: "Wellness media · CRM", impact: "+132K บาท", kpi: "Off-season experiences", need: "High", season: "Ideal", demand: "Growing" },
+  { month: "พ.ค.", title: "Planting Stories", community: "แม่จริม", confidence: 78, state: "ready", campaign: "Plant a Story", audience: "Families", window: "12–26 พ.ค.", channels: "Family creators · Schools", impact: "+73K บาท", kpi: "Community participation", need: "Medium", season: "Planting", demand: "Low" },
+  { month: "มิ.ย.", title: "Forest After Rain", community: "สองแคว", confidence: 84, state: "ready", campaign: "After Rain, Nan", audience: "Nature seekers", window: "6–23 มิ.ย.", channels: "Outdoor media · Video", impact: "+98K บาท", kpi: "Tourism distribution", need: "High", season: "Fresh forest", demand: "Emerging" },
+  { month: "ก.ค.", title: "Rice & Rivers", community: "ภูเพียง", confidence: 76, state: "watch", campaign: "Green Rice Weekend", audience: "Slow travelers", window: "11–28 ก.ค.", channels: "Community pages · CRM", impact: "+66K บาท", kpi: "Off-season experiences", need: "Medium", season: "Green season", demand: "Low" },
+  { month: "ส.ค.", title: "Textile Learning", community: "เวียงสา", confidence: 94, state: "active", campaign: "Textile Learning Month", audience: "Craft learners", window: "8–25 ส.ค.", channels: "Craft creators · Workshops", impact: "+92K บาท", kpi: "Community participation", need: "High", season: "Ideal", demand: "Gap 60 people" },
+  { month: "ก.ย.", title: "Forest Food", community: "เชียงกลาง", confidence: 82, state: "ready", campaign: "Forest to Table", audience: "Food explorers", window: "5–22 ก.ย.", channels: "Food media · Local chefs", impact: "+105K บาท", kpi: "Tourism distribution", need: "High", season: "Foraging", demand: "Emerging" },
+  { month: "ต.ค.", title: "Harvest Community", community: "บ้านหลวง", confidence: 87, state: "recommended", campaign: "Harvest Together", audience: "Culture seekers", window: "7–24 ต.ค.", channels: "Culture media · PR", impact: "+119K บาท", kpi: "Community participation", need: "High", season: "Harvest", demand: "Growing" },
+  { month: "พ.ย.", title: "Cultural Routes", community: "ปัว", confidence: 71, state: "watch", campaign: "Lanna Living Route", audience: "Culture seekers", window: "2–16 พ.ย.", channels: "Travel media · Partners", impact: "+88K บาท", kpi: "Tourism distribution", need: "Low", season: "High season", demand: "High" },
+  { month: "ธ.ค.", title: "Winter Slow Travel", community: "เมืองน่าน", confidence: 68, state: "full", campaign: "Stay Longer, Go Further", audience: "Winter travelers", window: "1–20 ธ.ค.", channels: "Hotel CRM · Route nudges", impact: "+64K บาท", kpi: "Tourism distribution", need: "Low", season: "Peak", demand: "Over capacity" },
 ];
 
 const communityMissions = [
@@ -145,6 +145,7 @@ function OpportunityView() {
   const [selected, setSelected] = useState(7);
   const [generated, setGenerated] = useState<string | null>(null);
   const [exchangeFilter, setExchangeFilter] = useState("All opportunities");
+  const [seasonalGenerated, setSeasonalGenerated] = useState(false);
   const active = months[selected];
   return (
     <div className="view-stack">
@@ -179,15 +180,25 @@ function OpportunityView() {
       <div className="calendar-divider"><span>12-month opportunity horizon</span></div>
       <div className="month-grid" role="list" aria-label="โอกาสท่องเที่ยว 12 เดือน">
         {months.map((item, index) => (
-          <button className={`month-card ${selected === index ? "selected" : ""}`} key={item.month} onClick={() => setSelected(index)}>
+          <button className={`month-card ${selected === index ? "selected" : ""}`} key={item.month} onClick={() => { setSelected(index); setSeasonalGenerated(false); }}>
             <span>{item.month}</span><strong>{item.title}</strong><small>{item.community}</small><em>{item.confidence}%</em>
           </button>
         ))}
       </div>
-      <section className="opportunity-focus">
-        <div><p className="eyebrow">Selected Opportunity</p><h2>{active.title}</h2><p>{active.community} · AI confidence {active.confidence}%</p></div>
-        <div className="opportunity-factors"><span>Need <b>สูง</b></span><span>Season <b>เหมาะสม</b></span><span>Capacity <b>พร้อม</b></span></div>
-        <button className="primary-action">ส่งไป Mission Control</button>
+      <section className="seasonal-campaign" aria-live="polite">
+        <div className="seasonal-intro">
+          <p className="eyebrow">AI Seasonal Campaign · {active.month}</p><h2>{active.campaign}</h2>
+          <p>AI เปลี่ยน seasonal opportunity ของ <strong>{active.community}</strong> ให้เป็น campaign brief ที่พร้อมส่งต่อ โดยอิงจาก Need, Season และ Demand จริง</p>
+          <div className="seasonal-confidence"><span>{active.confidence}%</span><small>AI confidence</small></div>
+        </div>
+        <div className="seasonal-logic"><span>Community Need <b>{active.need}</b></span><span>Season <b>{active.season}</b></span><span>Demand <b>{active.demand}</b></span></div>
+        <div className="campaign-brief">
+          <div><span>Target travelers</span><strong>{active.audience}</strong></div>
+          <div><span>Activation window</span><strong>{active.window}</strong></div>
+          <div><span>Recommended channels</span><strong>{active.channels}</strong></div>
+          <div><span>Expected local income</span><strong>{active.impact}</strong></div>
+        </div>
+        <div className="campaign-footer"><div><span>Primary KPI</span><strong>{active.kpi}</strong></div><button className="primary-action" onClick={() => setSeasonalGenerated(true)}>{seasonalGenerated ? "Campaign brief ready ✓" : "Generate seasonal campaign"}</button></div>
       </section>
     </div>
   );
