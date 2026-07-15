@@ -69,6 +69,30 @@ function DecisionConfidence({ value, factors = ["Weather", "Demand", "Season", "
 function MissionView({ onNavigate }: { onNavigate: () => void }) {
   const [executed, setExecuted] = useState(false);
   const [flowActive, setFlowActive] = useState(false);
+  const [capacity, setCapacity] = useState<60 | 0>(60);
+  const decision = capacity === 60 ? {
+    community: "เวียงสา", confidence: 94, households: 18, businesses: 7, campaign: "Wiang Sa Textile Week",
+    visitors: 42, income: "120,000", stay: "+0.6 วัน", receipt: "NP-2026-0715-008",
+    need: "Need Craft Learners", season: "ช่วงเรียนรู้ผ้าทอ", before: "เวียงสา 3%", after: "เวียงสา 18%", originAfter: "ปัว 55%",
+    reason: "เวียงสามี Need สูง ประสบการณ์เหมาะกับฤดูกาล และยังรองรับ Demand เพิ่มได้โดยไม่เกิน Capacity ส่วนปัวถูกตัดออกเพราะความหนาแน่นสูง"
+  } : {
+    community: "สันติสุข", confidence: 87, households: 12, businesses: 5, campaign: "Forest Wellness Pilot",
+    visitors: 28, income: "78,000", stay: "+0.8 วัน", receipt: "NP-2026-0715-009",
+    need: "Need Wellness Travelers", season: "Green season wellness", before: "สันติสุข 5%", after: "สันติสุข 14%", originAfter: "ปัว 63%",
+    reason: "Capacity เวียงสาเหลือ 0 คน ระบบจึงหยุดแคมเปญเดิมและเลือกสันติสุข ซึ่งมี Need สูง อากาศเหมาะกับกิจกรรมสุขภาพ และยังรองรับนักท่องเที่ยวได้"
+  };
+  const alternatives = capacity === 60 ? [
+    { rank: "01", place: "เวียงสา", score: "94%", state: "Selected", reason: "Need สูง · Capacity 60 · ฤดูกาลเหมาะสม", tone: "selected" },
+    { rank: "02", place: "สันติสุข", score: "87%", state: "Alternative", reason: "พร้อมรับ Wellness travelers แต่ Demand gap ต่ำกว่า", tone: "" },
+    { rank: "03", place: "ปัว", score: "42%", state: "Rejected", reason: "Tourist density 80% · ไม่ควรเพิ่มความหนาแน่น", tone: "" },
+    { rank: "04", place: "บ่อเกลือ", score: "38%", state: "Rejected", reason: "Weather risk สูงกว่าค่าที่กำหนด", tone: "" }
+  ] : [
+    { rank: "01", place: "สันติสุข", score: "87%", state: "Selected", reason: "Need สูง · อากาศเหมาะ · มี Capacity พร้อม", tone: "selected" },
+    { rank: "02", place: "เวียงสา", score: "0%", state: "Blocked", reason: "Capacity เปลี่ยนเป็น 0 · ห้ามส่งนักท่องเที่ยวเพิ่ม", tone: "blocked" },
+    { rank: "03", place: "ปัว", score: "42%", state: "Rejected", reason: "Tourist density 80% · ไม่ควรเพิ่มความหนาแน่น", tone: "" },
+    { rank: "04", place: "บ่อเกลือ", score: "38%", state: "Rejected", reason: "Weather risk สูงกว่าค่าที่กำหนด", tone: "" }
+  ];
+  const changeCapacity = (value: 60 | 0) => { setCapacity(value); setExecuted(false); setFlowActive(false); };
   return (
     <div className="view-stack">
       <section className={`decision-hero killer-moment ${executed ? "mission-executed" : ""}`} aria-labelledby="today-decision">
@@ -76,19 +100,33 @@ function MissionView({ onNavigate }: { onNavigate: () => void }) {
           <span><i aria-hidden="true">✦</i> Nan Pulse AI · New Opportunity Detected</span>
           <em>Demo Simulation · ไม่มีการส่งข้อมูลจริง</em>
         </div>
-        <div className="decision-topline">
+        <div className="decision-topline decision-refresh" key={decision.community}>
           <div>
-            <p className="eyebrow">AI Mission · เวียงสา · This week</p>
-            <h1 id="today-decision">ผมพบโอกาสใหม่ที่จะช่วยสร้างรายได้ให้ 18 ครัวเรือนในเวียงสาสัปดาห์นี้</h1>
+            <p className="eyebrow">AI Mission · {decision.community} · This week</p>
+            {capacity === 0 && <span className="decision-change-badge">Decision changed · Capacity signal updated</span>}
+            <h1 id="today-decision">ผมพบโอกาสใหม่ที่จะช่วยสร้างรายได้ให้ {decision.households} ครัวเรือนใน{decision.community}สัปดาห์นี้</h1>
           </div>
-          <div className="confidence-ring" aria-label="AI confidence 94 percent">
-            <span>94</span><small>%</small>
+          <div className="confidence-ring" aria-label={`AI confidence ${decision.confidence} percent`}>
+            <span>{decision.confidence}</span><small>%</small>
             <em>confidence</em>
           </div>
         </div>
 
         <p className="decision-copy">คุณต้องการให้ผม <strong>สร้างแคมเปญและปรับเส้นทางนักท่องเที่ยวอัตโนมัติ</strong> หรือไม่?</p>
-        <DecisionConfidence value={94} dark />
+        <DecisionConfidence value={decision.confidence} factors={["Weather", "Demand", "Season", "Community", "Capacity"]} dark />
+
+        <div className="live-decision-control">
+          <div>
+            <p><span className="live-dot" /> Live Decision Change</p>
+            <strong>เปลี่ยน Capacity แล้วดู AI ตัดสินใจใหม่ทันที</strong>
+          </div>
+          <div className="live-signal-row"><span>Weather <b>ฝนหยุดพรุ่งนี้</b></span><span>Demand <b>สูง</b></span><span>Season <b>Green season</b></span></div>
+          <div className="capacity-toggle" role="group" aria-label="เปลี่ยน capacity ของเวียงสา">
+            <small>Wiang Sa Capacity</small>
+            <button className={capacity === 60 ? "active" : ""} onClick={() => changeCapacity(60)}>60 คน</button>
+            <button className={capacity === 0 ? "active danger" : ""} onClick={() => changeCapacity(0)}>0 คน</button>
+          </div>
+        </div>
 
         <div className="decision-actions">
           <button className="primary-action execute-action" onClick={() => setExecuted(true)} disabled={executed}>
@@ -103,18 +141,47 @@ function MissionView({ onNavigate }: { onNavigate: () => void }) {
             <strong>{executed ? "จังหวัดอนุมัติแล้ว" : "รอการอนุมัติจากจังหวัด"}</strong>
           </div>
           <div className="execution-steps">
-            <article className={executed ? "complete" : ""}><b>01</b><i>◆</i><span>Create Campaign</span><strong>Wiang Sa Textile Week</strong><small>{executed ? "Campaign created" : "Prepared by Campaign Engine"}</small></article>
-            <article className={executed ? "complete" : ""}><b>02</b><i>⌂</i><span>Notify Community</span><strong>18 ครัวเรือน · 7 ธุรกิจ</strong><small>{executed ? "Community notified" : "Awaiting approval"}</small></article>
-            <article className={executed ? "complete" : ""}><b>03</b><i>↗</i><span>Update Tourist Journey</span><strong>Redirect 42 travelers</strong><small>{executed ? "Recommendation updated" : "ปัว → เวียงสา"}</small></article>
-            <article className={executed ? "complete" : ""}><b>04</b><i>◎</i><span>Simulate Impact</span><strong>+120,000 THB</strong><small>{executed ? "+0.6 day stay" : "Ready to simulate"}</small></article>
+            <article className={executed ? "complete" : ""}><b>01</b><i>◆</i><span>Create Campaign</span><strong>{decision.campaign}</strong><small>{executed ? "Campaign created" : "Prepared by Campaign Engine"}</small></article>
+            <article className={executed ? "complete" : ""}><b>02</b><i>⌂</i><span>Notify Community</span><strong>{decision.households} ครัวเรือน · {decision.businesses} ธุรกิจ</strong><small>{executed ? "Community notified" : "Awaiting approval"}</small></article>
+            <article className={executed ? "complete" : ""}><b>03</b><i>↗</i><span>Update Tourist Journey</span><strong>Redirect {decision.visitors} travelers</strong><small>{executed ? "Recommendation updated" : `ปัว → ${decision.community}`}</small></article>
+            <article className={executed ? "complete" : ""}><b>04</b><i>◎</i><span>Simulate Impact</span><strong>+{decision.income} THB</strong><small>{executed ? `${decision.stay} stay` : "Ready to simulate"}</small></article>
           </div>
           {executed && <div className="moment-simulation">
-            <div><span>Before AI</span><strong>ปัว 80%</strong><i>เวียงสา 3%</i></div>
+            <div><span>Before AI</span><strong>ปัว 80%</strong><i>{decision.before}</i></div>
             <b aria-hidden="true">→</b>
-            <div><span>After AI</span><strong>ปัว 55%</strong><i>เวียงสา 18%</i></div>
-            <div className="simulation-impact"><span>Expected Impact</span><strong>18 ครัวเรือน</strong><i>+120,000 บาท · +0.6 วันพัก</i></div>
+            <div><span>After AI</span><strong>{decision.originAfter}</strong><i>{decision.after}</i></div>
+            <div className="simulation-impact"><span>Expected Impact</span><strong>{decision.households} ครัวเรือน</strong><i>+{decision.income} บาท · {decision.stay}พัก</i></div>
           </div>}
         </div>
+      </section>
+
+      <section className="decision-receipt" aria-labelledby="receipt-title">
+        <div className="receipt-head">
+          <div><p className="eyebrow">Decision Receipt</p><h2 id="receipt-title">AI เลือกอะไร — และไม่เลือกอะไร</h2></div>
+          <div><span>Decision ID</span><strong>{decision.receipt}</strong><small>15 ก.ค. 2569 · 08:30</small></div>
+        </div>
+        <div className="receipt-grid">
+          <div className="receipt-signals">
+            <h3>Observed signals</h3>
+            <div><span>Weather</span><strong>88</strong><i><b style={{ width: "88%" }} /></i><small>ฝนหยุดพรุ่งนี้</small></div>
+            <div><span>Community Need</span><strong>95</strong><i><b style={{ width: "95%" }} /></i><small>ต้องการนักท่องเที่ยวเฉพาะกลุ่ม</small></div>
+            <div><span>Demand Gap</span><strong>91</strong><i><b style={{ width: "91%" }} /></i><small>ต่ำกว่าเป้าหมาย</small></div>
+            <div><span>Season Fit</span><strong>86</strong><i><b style={{ width: "86%" }} /></i><small>เหมาะกับประสบการณ์</small></div>
+            <div className={capacity === 0 ? "signal-blocked" : ""}><span>Wiang Sa Capacity</span><strong>{capacity}</strong><i><b style={{ width: `${capacity}%` }} /></i><small>{capacity === 0 ? "สัญญาณเปลี่ยน · ระบบห้ามเลือก" : "รองรับได้อีก 60 คน"}</small></div>
+          </div>
+          <div className="alternatives">
+            <h3>Ranked alternatives</h3>
+            {alternatives.map(item => <article className={item.tone} key={item.place}>
+              <b>{item.rank}</b><div><strong>{item.place}</strong><small>{item.reason}</small></div><em>{item.score}</em><span>{item.state}</span>
+            </article>)}
+          </div>
+        </div>
+        <div className="receipt-final">
+          <div><span>Final decision</span><strong>เปิดแคมเปญ “{decision.campaign}” และ redirect {decision.visitors} คนไป{decision.community}</strong><small>{decision.reason}</small></div>
+          <div><span>Control</span><strong>Human approval required</strong><small>AI เตรียมการตัดสินใจ แต่จังหวัดต้องกด Execute ก่อนดำเนินการ</small></div>
+        </div>
+        <div className="counterfactuals"><strong>What would change this decision?</strong><span>ฝน &gt; 70% → เลื่อนแคมเปญ</span><span>Capacity &lt; 20 → เลือกชุมชนถัดไป</span><span>PM2.5 สูง → เปลี่ยนเป็นกิจกรรมในร่ม</span><span>ปัว density &lt; 50% → ลดการ redirect</span></div>
+        <p className="receipt-disclaimer">Demo Decision Engine · คะแนนและผลกระทบเป็น Prototype simulation เพื่อแสดงตรรกะการตัดสินใจ ไม่ใช่ผลจากโมเดล production</p>
       </section>
 
       <section className={`ai-decision-flow ${flowActive ? "flow-active" : ""}`} aria-labelledby="decision-flow-title">
@@ -123,11 +190,11 @@ function MissionView({ onNavigate }: { onNavigate: () => void }) {
           <article className="flow-node node-detect"><span>01 · Detect</span><i>✦</i><strong>AI detects</strong><small>6 live data signals</small></article><b>→</b>
           <article className="flow-node node-signal"><span>02 · Weather</span><i>☂</i><strong>Rain</strong><small>ฝนหยุดพรุ่งนี้</small></article><b>→</b>
           <article className="flow-node node-signal"><span>03 · Calendar</span><i>◫</i><strong>Festival</strong><small>Coffee harvest window</small></article><b>→</b>
-          <article className="flow-node node-signal"><span>04 · Community</span><i>⌂</i><strong>Community Need</strong><small>Need Coffee Lovers</small></article><b>→</b>
-          <article className="flow-node node-signal"><span>05 · Density</span><i>◉</i><strong>Tourist Density</strong><small>ปัว 80% · เวียงสา 3%</small></article><b>→</b>
-          <article className="flow-node node-action"><span>06 · Create</span><i>◆</i><strong>Generate Campaign</strong><small>Coffee Route Campaign</small></article><b>→</b>
-          <article className="flow-node node-action"><span>07 · Act</span><i>↗</i><strong>Redirect Tourists</strong><small>ปัว → เวียงสา + พื้นที่รอง</small></article><b>→</b>
-          <article className="flow-node node-impact"><span>08 · Learn</span><i>+</i><strong>Impact</strong><small>+120K บาท · 4 ชุมชน</small></article>
+          <article className="flow-node node-signal"><span>04 · Community</span><i>⌂</i><strong>Community Need</strong><small>{decision.need}</small></article><b>→</b>
+          <article className="flow-node node-signal"><span>05 · Density</span><i>◉</i><strong>Tourist Density</strong><small>ปัว 80% · {decision.before}</small></article><b>→</b>
+          <article className="flow-node node-action"><span>06 · Create</span><i>◆</i><strong>Generate Campaign</strong><small>{decision.campaign}</small></article><b>→</b>
+          <article className="flow-node node-action"><span>07 · Act</span><i>↗</i><strong>Redirect Tourists</strong><small>ปัว → {decision.community}</small></article><b>→</b>
+          <article className="flow-node node-impact"><span>08 · Learn</span><i>+</i><strong>Impact</strong><small>+{decision.income} บาท · {decision.households} ครัวเรือน</small></article>
         </div>
         <div className="flow-logic"><span>Signal layer</span><i>Rain + Festival + Need + Density</i><b>Decision threshold passed · 86/100</b><strong>Human approval required before activation</strong></div>
       </section>
@@ -145,10 +212,10 @@ function MissionView({ onNavigate }: { onNavigate: () => void }) {
           <span className="evidence-tag">Estimated</span>
         </div>
         <div className="impact-grid">
-          <div><strong>+12</strong><span>ครัวเรือน</span></div>
-          <div><strong>7</strong><span>ธุรกิจท้องถิ่น</span></div>
-          <div><strong>120,000</strong><span>บาท · Mock estimate</span></div>
-          <div><strong>+0.6</strong><span>วันพักเฉลี่ย</span></div>
+          <div><strong>+{decision.households}</strong><span>ครัวเรือน</span></div>
+          <div><strong>{decision.businesses}</strong><span>ธุรกิจท้องถิ่น</span></div>
+          <div><strong>{decision.income}</strong><span>บาท · Mock estimate</span></div>
+          <div><strong>{decision.stay.replace(" วัน", "")}</strong><span>วันพักเฉลี่ย</span></div>
         </div>
       </section>
 
@@ -162,15 +229,15 @@ function MissionView({ onNavigate }: { onNavigate: () => void }) {
         </div>
         <div className="signal-grid">
           <Signal label="Weather" value="ฝนหยุดพรุ่งนี้" />
-          <Signal label="Season" value="ช่วงเรียนรู้ผ้าทอ" />
+          <Signal label="Season" value={decision.season} />
           <Signal label="Community Need" value="ความต้องการสูง" />
           <Signal label="Demand" value="ต่ำกว่าเป้าหมาย 60 คน" tone="warn" />
           <Signal label="PM2.5" value="18 µg/m³ · ปลอดภัย" />
-          <Signal label="Capacity" value="เหลือ 60 คน" tone="neutral" />
+          <Signal label="Capacity" value={capacity === 0 ? "เวียงสาเต็ม · 0 คน" : "เหลือ 60 คน"} tone={capacity === 0 ? "warn" : "neutral"} />
         </div>
         <div className="reason-note">
           <span className="pulse-icon" aria-hidden="true">⌁</span>
-          <p><strong>Decision logic</strong> เวียงสามี Need สูง ประสบการณ์เหมาะกับฤดูกาล และยังรองรับ Demand เพิ่มได้โดยไม่เกิน Capacity ส่วนปัวถูกตัดออกเพราะเต็มแล้ว</p>
+          <p><strong>Decision logic</strong> {decision.reason}</p>
         </div>
       </section>
     </div>
