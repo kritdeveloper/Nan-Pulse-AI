@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 
 type View = "mission" | "copilot" | "planner";
-type MissionSection = "today" | "opportunities" | "forecast" | "impact" | "evaluation";
+type MissionSection = "today" | "opportunities" | "twin" | "forecast" | "impact" | "evaluation";
 
 const views: Array<{ id: View; label: string; note: string; mark: string }> = [
   { id: "mission", label: "Mission Control", note: "For tourism authorities", mark: "◎" },
@@ -67,8 +67,8 @@ function MissionView({ onNavigate }: { onNavigate: () => void }) {
       <section className="decision-hero" aria-labelledby="today-decision">
         <div className="decision-topline">
           <div>
-            <p className="eyebrow">Today’s Decision · 15 กรกฎาคม 2569</p>
-            <h1 id="today-decision">ส่งเสริมเวียงสา<br />ในเดือนสิงหาคม</h1>
+            <p className="eyebrow">Good Morning · Proactive Mission</p>
+            <h1 id="today-decision">Tomorrow, Coffee<br />Harvest starts.</h1>
           </div>
           <div className="confidence-ring" aria-label="AI confidence 94 percent">
             <span>94</span><small>%</small>
@@ -76,11 +76,11 @@ function MissionView({ onNavigate }: { onNavigate: () => void }) {
           </div>
         </div>
 
-        <p className="decision-copy">เปิดแคมเปญ <strong>“Textile Learning Month”</strong> เพื่อเชื่อมผู้เดินทางสายงานคราฟต์กับเวิร์กช็อปย้อมผ้าและเรื่องเล่าชุมชน ภายในขีดความสามารถที่ชุมชนอนุมัติ</p>
+        <p className="decision-copy">We recommend launching <strong>“Coffee Route Campaign”</strong> วันนี้ เพื่อดึง Coffee Lovers จากพื้นที่หนาแน่นไปยังสวนกาแฟและชุมชนที่พร้อมรับนักท่องเที่ยว คาดว่าจะสร้างรายได้เพิ่ม <strong>+120,000 THB</strong></p>
 
         <div className="decision-actions">
           <button className="primary-action" onClick={() => setApproved(true)} disabled={approved}>
-            {approved ? "ส่งเข้ากระบวนการอนุมัติแล้ว" : "ส่งเข้ากระบวนการอนุมัติ"}
+            {approved ? "Coffee Route approved ✓" : "Approve Coffee Route Campaign"}
           </button>
           <button className="text-action" onClick={onNavigate}>ดูโอกาสเดือนอื่น <span>→</span></button>
         </div>
@@ -91,12 +91,12 @@ function MissionView({ onNavigate }: { onNavigate: () => void }) {
         <div className="flow-track">
           <article className="flow-node node-detect"><span>01 · Detect</span><i>✦</i><strong>AI detects</strong><small>6 live data signals</small></article><b>→</b>
           <article className="flow-node node-signal"><span>02 · Weather</span><i>☂</i><strong>Rain</strong><small>ฝนหยุดพรุ่งนี้</small></article><b>→</b>
-          <article className="flow-node node-signal"><span>03 · Calendar</span><i>◫</i><strong>Festival</strong><small>ช่วงงานแข่งเรือน่าน</small></article><b>→</b>
-          <article className="flow-node node-signal"><span>04 · Community</span><i>⌂</i><strong>Community Need</strong><small>เวียงสาต้องการ +60 คน</small></article><b>→</b>
-          <article className="flow-node node-signal"><span>05 · Density</span><i>◉</i><strong>Tourist Density</strong><small>เมืองน่าน 82% · เวียงสา 34%</small></article><b>→</b>
-          <article className="flow-node node-action"><span>06 · Create</span><i>◆</i><strong>Generate Campaign</strong><small>Textile Learning Week</small></article><b>→</b>
-          <article className="flow-node node-action"><span>07 · Act</span><i>↗</i><strong>Redirect Tourists</strong><small>42 คน → เวียงสา</small></article><b>→</b>
-          <article className="flow-node node-impact"><span>08 · Learn</span><i>+</i><strong>Impact</strong><small>+92K บาท · 11 ครัวเรือน</small></article>
+          <article className="flow-node node-signal"><span>03 · Calendar</span><i>◫</i><strong>Festival</strong><small>Coffee harvest window</small></article><b>→</b>
+          <article className="flow-node node-signal"><span>04 · Community</span><i>⌂</i><strong>Community Need</strong><small>Need Coffee Lovers</small></article><b>→</b>
+          <article className="flow-node node-signal"><span>05 · Density</span><i>◉</i><strong>Tourist Density</strong><small>ปัว 80% · เวียงสา 3%</small></article><b>→</b>
+          <article className="flow-node node-action"><span>06 · Create</span><i>◆</i><strong>Generate Campaign</strong><small>Coffee Route Campaign</small></article><b>→</b>
+          <article className="flow-node node-action"><span>07 · Act</span><i>↗</i><strong>Redirect Tourists</strong><small>ปัว → เวียงสา + พื้นที่รอง</small></article><b>→</b>
+          <article className="flow-node node-impact"><span>08 · Learn</span><i>+</i><strong>Impact</strong><small>+120K บาท · 4 ชุมชน</small></article>
         </div>
         <div className="flow-logic"><span>Signal layer</span><i>Rain + Festival + Need + Density</i><b>Decision threshold passed · 86/100</b><strong>Human approval required before activation</strong></div>
       </section>
@@ -114,10 +114,10 @@ function MissionView({ onNavigate }: { onNavigate: () => void }) {
           <span className="evidence-tag">Estimated</span>
         </div>
         <div className="impact-grid">
-          <div><strong>+11</strong><span>ครัวเรือน</span></div>
-          <div><strong>5</strong><span>ธุรกิจท้องถิ่น</span></div>
-          <div><strong>72,000</strong><span>บาท รายได้ประมาณการ</span></div>
-          <div><strong>+36</strong><span>คืนพักเพิ่มเติม</span></div>
+          <div><strong>+12</strong><span>ครัวเรือน</span></div>
+          <div><strong>7</strong><span>ธุรกิจท้องถิ่น</span></div>
+          <div><strong>120,000</strong><span>บาท · Mock estimate</span></div>
+          <div><strong>+0.6</strong><span>วันพักเฉลี่ย</span></div>
         </div>
       </section>
 
@@ -285,6 +285,15 @@ function ImpactView() {
           <div className="kpi-measure"><span>How we measure</span><p>{kpi.measure}</p></div>
         </article>)}
       </section>
+      <section className="impact-evidence" aria-labelledby="distribution-evidence-title">
+        <div className="evidence-heading"><div><p className="eyebrow">Distribution Simulation</p><h2 id="distribution-evidence-title">Before AI → After AI</h2></div><span>Mock Simulation · ไม่ใช่สถิติจริง</span></div>
+        <div className="distribution-compare">
+          <div className="distribution-state before"><p>Before AI</p><article><div><strong>ปัว</strong><span>Tourist density</span></div><b>80%</b><i><em style={{ width: "80%" }} /></i></article><article><div><strong>เวียงสา</strong><span>Tourist density</span></div><b>3%</b><i><em style={{ width: "3%" }} /></i></article></div>
+          <div className="distribution-arrow"><span>AI redirects</span><strong>→</strong><small>Coffee Route Campaign</small></div>
+          <div className="distribution-state after"><p>After AI</p><article><div><strong>ปัว</strong><span>ลดความหนาแน่น</span></div><b>55%</b><i><em style={{ width: "55%" }} /></i></article><article><div><strong>เวียงสา</strong><span>เพิ่มโอกาสอย่างมีขอบเขต</span></div><b>18%</b><i><em style={{ width: "18%" }} /></i></article></div>
+        </div>
+        <div className="evidence-results"><div><span>Redirected visitors</span><strong>42</strong></div><div><span>Expected income</span><strong>+120K</strong></div><div><span>Stay extension</span><strong>+0.6 day</strong></div><div><span>Communities reached</span><strong>+4</strong></div></div>
+      </section>
       <div className="calendar-divider"><span>Evidence from recent missions</span></div>
       <section className="mission-feed">
         <article><span className="feed-time">Today · 08:30</span><div className="feed-event"><i>AI redirected</i><strong>42 tourists</strong><span>เมืองน่าน → เวียงสา</span></div><b className="flow-arrow">↓</b><div className="feed-result"><i>Income</i><strong>+92,000</strong><span>บาท · 11 ครัวเรือน</span></div></article>
@@ -314,7 +323,7 @@ function EvaluationEvidence({ onNavigate }: { onNavigate: (section: MissionSecti
   const criteria: Array<{ score: string; title: string; thesis: string; evidence: string[]; demo: string; section: MissionSection; tone: string }> = [
     { score: "20", title: "Impact เชิงท่องเที่ยว", thesis: "ตัดสินใจเพื่อเพิ่มกิจกรรมนอกฤดู กระจาย demand และสร้างรายได้ให้พื้นที่รอง", evidence: ["Official baseline + AI estimate แยกชัด", "3 North-star KPIs วัดผลต่อเนื่อง", "Mission Feed เชื่อม Decision กับรายได้จริง"], demo: "เห็นนักท่องเที่ยวถูก redirect 42 คน และผลต่อรายได้/ครัวเรือน", section: "impact", tone: "lime" },
     { score: "15", title: "ความเข้าใจชุมชน", thesis: "เริ่มจาก Community Need, Readiness และ Capacity ไม่ได้เริ่มจากสถานที่ยอดนิยม", evidence: ["ชุมชนกำหนด Need และ guardrail", "AI เลือกกลุ่มนักท่องเที่ยวที่เหมาะ", "Copilot เปลี่ยน Mission เป็นงานที่ทำได้จริง"], demo: "เห็นว่าเวียงสารับได้อีก 60 คน ขณะที่ปัวถูกตัดออกเพราะเต็ม", section: "today", tone: "forest" },
-    { score: "15", title: "ความคิดสร้างสรรค์", thesis: "Opportunity Exchange เปลี่ยนทรัพยากรที่ยังไม่ถูกใช้ให้เป็นโอกาส 12 เดือน", evidence: ["ไม่ใช่ dashboard หรือ travel search", "Seasonal Campaign จาก calendar จริง", "Closed-loop: Decision → Action → Learning"], demo: "เลือกเดือนแล้ว AI สร้าง seasonal campaign พร้อม target และ impact", section: "opportunities", tone: "sun" },
+    { score: "15", title: "ความคิดสร้างสรรค์", thesis: "Tourism Digital Twin จำลองผลของ Campaign ก่อนจังหวัดตัดสินใจใช้จริง", evidence: ["ไม่ใช่ dashboard หรือ travel search", "ลาก Campaign เพื่อเห็น Before/After", "Closed-loop: Decision → Action → Learning"], demo: "ลาก Coffee Festival แล้วเห็น density, income และ stay เปลี่ยนทันที", section: "twin", tone: "sun" },
     { score: "15", title: "การใช้ AI", thesis: "AI ทำหน้าที่ตัดสินใจ คาดการณ์ อธิบาย จับคู่ สร้างแคมเปญ และเรียนรู้ผลลัพธ์", evidence: ["Decision มี Reason + Confidence", "Forecast และ matching มี capacity guardrail", "Human approval ก่อน activate campaign"], demo: "กรรมการเห็น input → decision → reason → expected impact ใน flow เดียว", section: "forecast", tone: "coral" },
   ];
   return <div className="view-stack">
@@ -328,11 +337,36 @@ function EvaluationEvidence({ onNavigate }: { onNavigate: (section: MissionSecti
   </div>;
 }
 
+function TourismDigitalTwin() {
+  const scenarios = [
+    { id: "coffee", name: "Coffee Festival", note: "Harvest window · 5 days", visitors: "+15%", income: "+280K", stay: "+0.8 day", communities: "+4", pua: 55, wiangsa: 18, confidence: 88 },
+    { id: "textile", name: "Textile Learning Week", note: "Green season · 14 days", visitors: "+11%", income: "+190K", stay: "+0.5 day", communities: "+3", pua: 62, wiangsa: 15, confidence: 91 },
+    { id: "wellness", name: "Forest Wellness Route", note: "Low-density window · 9 days", visitors: "+9%", income: "+156K", stay: "+1.1 day", communities: "+5", pua: 66, wiangsa: 12, confidence: 84 },
+  ];
+  const [selected, setSelected] = useState<string | null>(null);
+  const active = scenarios.find(item => item.id === selected);
+  return <div className="view-stack">
+    <header className="content-header compact"><div><p className="eyebrow">One Killer Feature · Tourism Digital Twin</p><h1>ทดลอง Decision<br />ก่อนใช้กับจังหวัดจริง</h1></div><p>ไม่ใช่แผนที่ แต่เป็น simulation environment สำหรับดูผลของ Campaign ต่อการกระจายนักท่องเที่ยว รายได้ ระยะเวลาพัก และชุมชน</p></header>
+    <section className="twin-workbench">
+      <div className="campaign-dock"><p className="eyebrow">Campaign scenarios</p><h2>ลาก Campaign<br />ลงใน Digital Twin</h2><div>{scenarios.map(item => <button draggable key={item.id} onDragStart={event => event.dataTransfer.setData("campaign", item.id)} onClick={() => setSelected(item.id)} className={selected === item.id ? "active" : ""}><span>⋮⋮</span><strong>{item.name}</strong><small>{item.note}</small></button>)}</div><p>ลากและวาง หรือกดเลือกเพื่อรองรับ keyboard/touch</p></div>
+      <div className={`twin-stage ${active ? "has-scenario" : ""}`} onDragOver={event => event.preventDefault()} onDrop={event => { event.preventDefault(); setSelected(event.dataTransfer.getData("campaign")); }}>
+        {!active ? <div className="empty-twin"><span>◎</span><strong>Drop campaign here</strong><small>AI จะจำลอง Before / After ทันที</small></div> : <>
+          <div className="twin-head"><div><p className="eyebrow">Running simulation</p><h2>{active.name}</h2></div><span>{active.confidence}% confidence</span></div>
+          <div className="twin-density"><div><p>Before AI</p><article><span>ปัว</span><strong>80%</strong><i><b style={{ width: "80%" }} /></i></article><article><span>เวียงสา</span><strong>3%</strong><i><b style={{ width: "3%" }} /></i></article></div><em>→</em><div><p>After AI</p><article><span>ปัว</span><strong>{active.pua}%</strong><i><b style={{ width: `${active.pua}%` }} /></i></article><article><span>เวียงสา</span><strong>{active.wiangsa}%</strong><i><b style={{ width: `${active.wiangsa}%` }} /></i></article></div></div>
+          <div className="twin-results"><div><span>Visitors</span><strong>{active.visitors}</strong></div><div><span>Income</span><strong>{active.income}</strong></div><div><span>Stay</span><strong>{active.stay}</strong></div><div><span>Communities</span><strong>{active.communities}</strong></div></div>
+          <div className="twin-disclaimer"><span>Mock Simulation</span><p>ผลลัพธ์นี้เป็น scenario estimate สำหรับเปรียบเทียบทางเลือก ไม่ใช่ผลลัพธ์จริง จังหวัดต้องอนุมัติก่อน activate campaign</p><button onClick={() => setSelected(null)}>Reset</button></div>
+        </>}
+      </div>
+    </section>
+  </div>;
+}
+
 function MissionControl() {
   const [section, setSection] = useState<MissionSection>("today");
   const sections: Array<{ id: MissionSection; label: string }> = [
     { id: "today", label: "Today’s Decision" },
     { id: "opportunities", label: "Opportunity & Campaign" },
+    { id: "twin", label: "Tourism Digital Twin" },
     { id: "forecast", label: "Tourism Health" },
     { id: "impact", label: "KPI & Impact" },
     { id: "evaluation", label: "Evaluation Evidence" },
@@ -340,10 +374,11 @@ function MissionControl() {
   return <div className="product-workspace">
     <header className="workspace-identity"><div><p className="eyebrow">01 · Provincial Decision System</p><h1>Mission Control</h1></div><p>ระบบตัดสินใจว่า “จังหวัดควรสร้างโอกาสที่ไหน เมื่อไร และให้ใคร” ก่อนส่ง Decision ไปสู่แคมเปญ ชุมชน และการเดินทางจริง</p></header>
     <section className="decision-doctrine"><div><span>Nan Pulse is</span><strong>ระบบการตัดสินใจ</strong></div><b>≠</b><div><span>Nan Pulse is not</span><strong>ระบบแนะนำสถานที่</strong></div><ol><li>AI Detects</li><li>Signals</li><li>Campaign</li><li>Redirect</li><li>Impact</li></ol></section>
-    <section className="criteria-ribbon" aria-label="เกณฑ์การให้คะแนน"><button onClick={() => setSection("impact")}><strong>20</strong><span>Impact เชิงท่องเที่ยว</span></button><button onClick={() => setSection("today")}><strong>15</strong><span>ความเข้าใจชุมชน</span></button><button onClick={() => setSection("opportunities")}><strong>15</strong><span>ความคิดสร้างสรรค์</span></button><button onClick={() => setSection("evaluation")}><strong>15</strong><span>การใช้ AI</span></button></section>
+    <section className="criteria-ribbon" aria-label="เกณฑ์การให้คะแนน"><button onClick={() => setSection("impact")}><strong>20</strong><span>Impact เชิงท่องเที่ยว</span></button><button onClick={() => setSection("today")}><strong>15</strong><span>ความเข้าใจชุมชน</span></button><button onClick={() => setSection("twin")}><strong>15</strong><span>ความคิดสร้างสรรค์</span></button><button onClick={() => setSection("evaluation")}><strong>15</strong><span>การใช้ AI</span></button></section>
     <nav className="workspace-tabs" aria-label="เครื่องมือ Mission Control">{sections.map(item => <button key={item.id} className={section === item.id ? "active" : ""} onClick={() => setSection(item.id)}>{item.label}</button>)}</nav>
     {section === "today" && <MissionView onNavigate={() => setSection("opportunities")} />}
     {section === "opportunities" && <OpportunityView />}
+    {section === "twin" && <TourismDigitalTwin />}
     {section === "forecast" && <ForecastView />}
     {section === "impact" && <ImpactView />}
     {section === "evaluation" && <EvaluationEvidence onNavigate={setSection} />}
@@ -354,21 +389,24 @@ function MissionControl() {
 function CommunityCopilot() {
   const [community, setCommunity] = useState("เวียงสา");
   const [goal, setGoal] = useState("เพิ่มผู้เข้าร่วมเวิร์กช็อป");
+  const [mission, setMission] = useState("Need Coffee Lovers");
   const [created, setCreated] = useState(false);
+  const communityNeeds = ["Need Visitors", "Need Promotion", "Need Coffee Lovers", "Need Family Travelers"];
   return <div className="product-workspace">
     <header className="workspace-identity"><div><p className="eyebrow">02 · Decision Activation for Operators</p><h1>Community Copilot</h1></div><p>รับ Mission ที่จังหวัดตัดสินใจแล้วมาเปลี่ยนเป็นโปรโมชัน เนื้อหาประชาสัมพันธ์ และกิจกรรมที่ชุมชนดำเนินการได้จริง</p></header>
     <section className="copilot-layout">
       <div className="copilot-input">
-        <div className="copilot-orb">✦</div><p className="eyebrow">Mission received · Wiang Sa</p><h2>เปลี่ยน Decision<br />ให้เป็น Campaign</h2>
+        <div className="copilot-orb">✦</div><p className="eyebrow">Community speaks first</p><h2>ตอนนี้ฉัน<br />ต้องการอะไร</h2>
+        <div className="community-asks" role="group" aria-label="Community missions">{communityNeeds.map(need => <button key={need} className={mission === need ? "active" : ""} onClick={() => { setMission(need); setCreated(false); }}>{need}</button>)}</div>
         <label>ชุมชน<select value={community} onChange={e => { setCommunity(e.target.value); setCreated(false); }}><option>เวียงสา</option><option>สันติสุข</option><option>แม่จริม</option></select></label>
         <label>เป้าหมาย<select value={goal} onChange={e => { setGoal(e.target.value); setCreated(false); }}><option>เพิ่มผู้เข้าร่วมเวิร์กช็อป</option><option>สร้างโปรโมชันช่วง Low Season</option><option>เปิดตัวกิจกรรมใหม่</option></select></label>
         <div className="copilot-context"><span>Season <b>Green season</b></span><span>Demand <b>ต่ำกว่าเป้าหมาย</b></span><span>Capacity <b>เหลือ 60 คน</b></span></div>
         <button className="primary-action" onClick={() => setCreated(true)}>{created ? "Mission activated ✓" : "Activate this mission"}</button>
       </div>
       <div className={`copilot-output ${created ? "ready" : ""}`}>
-        <div className="output-head"><div><p className="eyebrow">AI Seasonal Recommendation</p><h2>Textile Rain Stories</h2></div><span>92% fit</span></div>
-        <p className="output-lead">ชวนผู้เดินทางมาเรียนรู้สีธรรมชาติหลังฝน ผ่านเรื่องเล่าของช่างย้อมผ้า {community}</p>
-        <div className="content-pack"><article><span>Promotion</span><strong>มา 2 คน รับชุดทดลองย้อมสีธรรมชาติฟรี</strong></article><article><span>Thai caption</span><p>หลังฝน สีของป่าจะชัดที่สุด มาสร้างผ้าผืนเดียวในโลกกับช่างย้อมเวียงสา</p></article><article><span>English caption</span><p>After the rain, Nan’s natural colors come alive. Make your own textile story with local artisans.</p></article><article><span>Suggested activity</span><strong>Natural Dye Workshop + Local Lunch</strong></article></div>
+        <div className="output-head"><div><p className="eyebrow">Mission response · {mission}</p><h2>{mission === "Need Coffee Lovers" ? "Coffee Route Stories" : "Textile Rain Stories"}</h2></div><span>92% fit</span></div>
+        <p className="output-lead">AI รับฟัง Mission “{mission}” ของ {community} แล้วเปลี่ยนเป็น Campaign ที่สอดคล้องกับฤดูกาลและ capacity ของชุมชน</p>
+        <div className="content-pack"><article><span>Promotion</span><strong>จอง Coffee Route รับ Mini Cupping Session ฟรี</strong></article><article><span>Thai caption</span><p>พรุ่งนี้กาแฟล็อตแรกเริ่มเก็บเกี่ยว มารู้จักกาแฟน่านตั้งแต่ต้นจนถึงถ้วยกับคนปลูกตัวจริง</p></article><article><span>English caption</span><p>Tomorrow, Nan’s first coffee harvest begins. Follow the bean from mountain farm to cup with local growers.</p></article><article><span>Suggested activity</span><strong>Coffee Harvest + Cupping + Local Lunch</strong></article></div>
         <div className="output-impact"><span>Expected result</span><strong>+42 visitors</strong><strong>+68,000 บาท</strong><strong>8 households</strong></div>
       </div>
     </section>
