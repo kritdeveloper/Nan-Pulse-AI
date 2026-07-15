@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { NanPulseApp } from "./nan-pulse-app";
+import { OfficialNanApp } from "./official-nan-app";
 
 export const metadata: Metadata = {
   title: "Nan Pulse AI — The Operating Pulse of Sustainable Tourism",
@@ -7,5 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function Home() {
-  return <NanPulseApp />;
+  return <OfficialNanApp />;
 }
