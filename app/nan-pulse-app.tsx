@@ -280,7 +280,8 @@ function MissionControl() {
     { id: "impact", label: "KPI & Impact" },
   ];
   return <div className="product-workspace">
-    <header className="workspace-identity"><div><p className="eyebrow">01 · For tourism authorities</p><h1>Mission Control</h1></div><p>ติดตามสถานการณ์ วิเคราะห์โอกาส และออกแบบแคมเปญที่เหมาะกับแต่ละเดือน</p></header>
+    <header className="workspace-identity"><div><p className="eyebrow">01 · Provincial Decision System</p><h1>Mission Control</h1></div><p>ระบบตัดสินใจว่า “จังหวัดควรสร้างโอกาสที่ไหน เมื่อไร และให้ใคร” ก่อนส่ง Decision ไปสู่แคมเปญ ชุมชน และการเดินทางจริง</p></header>
+    <section className="decision-doctrine"><div><span>Nan Pulse is</span><strong>ระบบการตัดสินใจ</strong></div><b>≠</b><div><span>Nan Pulse is not</span><strong>ระบบแนะนำสถานที่</strong></div><ol><li>Community Need</li><li>AI Decision</li><li>Campaign</li><li>Experience</li><li>Impact</li></ol></section>
     <nav className="workspace-tabs" aria-label="เครื่องมือ Mission Control">{sections.map(item => <button key={item.id} className={section === item.id ? "active" : ""} onClick={() => setSection(item.id)}>{item.label}</button>)}</nav>
     {section === "today" && <MissionView onNavigate={() => setSection("opportunities")} />}
     {section === "opportunities" && <OpportunityView />}
@@ -294,14 +295,14 @@ function CommunityCopilot() {
   const [goal, setGoal] = useState("เพิ่มผู้เข้าร่วมเวิร์กช็อป");
   const [created, setCreated] = useState(false);
   return <div className="product-workspace">
-    <header className="workspace-identity"><div><p className="eyebrow">02 · For communities & operators</p><h1>Community Copilot</h1></div><p>ผู้ช่วย AI สำหรับสร้างโปรโมชัน เนื้อหาประชาสัมพันธ์ และกิจกรรมที่เหมาะกับฤดูกาล</p></header>
+    <header className="workspace-identity"><div><p className="eyebrow">02 · Decision Activation for Operators</p><h1>Community Copilot</h1></div><p>รับ Mission ที่จังหวัดตัดสินใจแล้วมาเปลี่ยนเป็นโปรโมชัน เนื้อหาประชาสัมพันธ์ และกิจกรรมที่ชุมชนดำเนินการได้จริง</p></header>
     <section className="copilot-layout">
       <div className="copilot-input">
-        <div className="copilot-orb">✦</div><p className="eyebrow">Tell your Copilot</p><h2>เดือนนี้คุณอยาก<br />สร้างโอกาสอะไร</h2>
+        <div className="copilot-orb">✦</div><p className="eyebrow">Mission received · Wiang Sa</p><h2>เปลี่ยน Decision<br />ให้เป็น Campaign</h2>
         <label>ชุมชน<select value={community} onChange={e => { setCommunity(e.target.value); setCreated(false); }}><option>เวียงสา</option><option>สันติสุข</option><option>แม่จริม</option></select></label>
         <label>เป้าหมาย<select value={goal} onChange={e => { setGoal(e.target.value); setCreated(false); }}><option>เพิ่มผู้เข้าร่วมเวิร์กช็อป</option><option>สร้างโปรโมชันช่วง Low Season</option><option>เปิดตัวกิจกรรมใหม่</option></select></label>
         <div className="copilot-context"><span>Season <b>Green season</b></span><span>Demand <b>ต่ำกว่าเป้าหมาย</b></span><span>Capacity <b>เหลือ 60 คน</b></span></div>
-        <button className="primary-action" onClick={() => setCreated(true)}>{created ? "Promotion created ✓" : "Create with AI"}</button>
+        <button className="primary-action" onClick={() => setCreated(true)}>{created ? "Mission activated ✓" : "Activate this mission"}</button>
       </div>
       <div className={`copilot-output ${created ? "ready" : ""}`}>
         <div className="output-head"><div><p className="eyebrow">AI Seasonal Recommendation</p><h2>Textile Rain Stories</h2></div><span>92% fit</span></div>
@@ -317,13 +318,13 @@ function AdaptiveExperiencePlanner() {
   const [interest, setInterest] = useState("Wellness");
   const [planned, setPlanned] = useState(false);
   return <div className="product-workspace">
-    <header className="workspace-identity"><div><p className="eyebrow">03 · For travelers</p><h1>Adaptive Experience Planner</h1></div><p>แนะนำประสบการณ์ตามความสนใจ สภาพอากาศ และฤดูกาล พร้อมกระจายการเดินทางไปยังชุมชนที่มีศักยภาพ</p></header>
+    <header className="workspace-identity"><div><p className="eyebrow">03 · Decision Delivery for Travelers</p><h1>Adaptive Experience Planner</h1></div><p>นำ Decision ของจังหวัดมาจับคู่กับความสนใจ อากาศ และฤดูกาล เพื่อสร้าง Experience ที่เหมาะกับผู้เดินทางและกระจายโอกาสไปพร้อมกัน</p></header>
     <section className="planner-hero">
-      <div className="planner-question"><p className="eyebrow">Build around how you want to feel</p><h2>คุณอยากได้<br />ประสบการณ์แบบไหน</h2><div className="interest-pills">{["Wellness","Craft","Food","Nature"].map(item => <button key={item} className={interest === item ? "active" : ""} onClick={() => { setInterest(item); setPlanned(false); }}>{item}</button>)}</div><button className="primary-action" onClick={() => setPlanned(true)}>{planned ? "Experience plan ready ✓" : "Plan my experience"}</button></div>
+      <div className="planner-question"><p className="eyebrow">Match traveler fit with provincial mission</p><h2>ความสนใจแบบไหน<br />ตรงกับ Mission นี้</h2><div className="interest-pills">{["Wellness","Craft","Food","Nature"].map(item => <button key={item} className={interest === item ? "active" : ""} onClick={() => { setInterest(item); setPlanned(false); }}>{item}</button>)}</div><button className="primary-action" onClick={() => setPlanned(true)}>{planned ? "Mission matched ✓" : "Match this mission to my trip"}</button></div>
       <div className="adaptive-signals"><p className="eyebrow">Live conditions</p><div><span>Weather</span><strong>ฝนหยุดพรุ่งนี้</strong><small>เหมาะกับ forest route</small></div><div><span>Season</span><strong>Herbal green season</strong><small>วัตถุดิบพร้อมที่สุด</small></div><div><span>Tourism pulse</span><strong>เวียงสา capacity พร้อม</strong><small>ปัวหนาแน่นกว่าปกติ</small></div></div>
     </section>
     <section className={`experience-plan ${planned ? "ready" : ""}`}>
-      <div className="plan-title"><p className="eyebrow">AI recommends · {interest}</p><h2>Forest Reset Journey</h2><p>ประสบการณ์ 2 วัน 1 คืน ที่เปลี่ยนเส้นทางจากพื้นที่หนาแน่นไปยังสันติสุขและเวียงสา</p></div>
+      <div className="plan-title"><p className="eyebrow">Mission-matched experience · {interest}</p><h2>Forest Reset Journey</h2><p>ประสบการณ์ 2 วัน 1 คืนที่เกิดจาก Decision ให้กระจาย demand จากพื้นที่หนาแน่นไปยังสันติสุขและเวียงสา</p></div>
       <ol><li><span>01</span><div><strong>Forest Therapy</strong><small>สันติสุข · 09:00</small></div></li><li><span>02</span><div><strong>Herbal Local Lunch</strong><small>ครัวเรือนแม่คำ · 12:30</small></div></li><li><span>03</span><div><strong>Natural Dye Workshop</strong><small>เวียงสา · 15:00</small></div></li><li><span>04</span><div><strong>Community Homestay</strong><small>บ้านดอนไชย · Overnight</small></div></li></ol>
       <div className="plan-impact"><p>Trip impact</p><strong>2</strong><span>communities</span><strong>6</strong><span>local businesses</span><strong>+1</strong><span>night in Nan</span></div>
     </section>
