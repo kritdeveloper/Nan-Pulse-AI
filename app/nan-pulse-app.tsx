@@ -73,7 +73,7 @@ function MissionView({ onNavigate }: { onNavigate: () => void }) {
     <div className="view-stack">
       <section className={`decision-hero killer-moment ${executed ? "mission-executed" : ""}`} aria-labelledby="today-decision">
         <div className="moment-status">
-          <span><i aria-hidden="true">✦</i> Nan Pulse · New Opportunity Detected</span>
+          <span><i aria-hidden="true">✦</i> Nan Pulse AI · New Opportunity Detected</span>
           <em>Demo Simulation · ไม่มีการส่งข้อมูลจริง</em>
         </div>
         <div className="decision-topline">
@@ -306,9 +306,9 @@ function ImpactView() {
     <div className="view-stack">
       <header className="content-header compact">
         <div><p className="eyebrow">Three North-star KPIs</p><h1>วัดเพียง 3 สิ่ง<br />ที่เปลี่ยนน่านจริง</h1></div>
-        <p>ทุก Decision, Campaign และ Impact ใน Nan Pulse ต้องขยับ KPI อย่างน้อยหนึ่งข้อ โดยไม่เพิ่มตัวชี้วัดหลักอื่นมารบกวนทิศทาง</p>
+        <p>ทุก Decision, Campaign และ Impact ใน Nan Pulse AI ต้องขยับ KPI อย่างน้อยหนึ่งข้อ โดยไม่เพิ่มตัวชี้วัดหลักอื่นมารบกวนทิศทาง</p>
       </header>
-      <section className="kpi-cards" aria-label="ตัวชี้วัดหลักของ Nan Pulse">
+      <section className="kpi-cards" aria-label="ตัวชี้วัดหลักของ Nan Pulse AI">
         {kpis.map(kpi => <article key={kpi.number}>
           <div className="kpi-heading"><span>{kpi.number}</span><div><p>Primary KPI</p><h2>{kpi.title}</h2></div></div>
           <p className="kpi-description">{kpi.description}</p>
@@ -359,7 +359,55 @@ function EvaluationEvidence({ onNavigate }: { onNavigate: (section: MissionSecti
     { score: "15", title: "การใช้ AI", thesis: "AI ทำหน้าที่ตัดสินใจ คาดการณ์ อธิบาย จับคู่ สร้างแคมเปญ และเรียนรู้ผลลัพธ์", evidence: ["Decision มี Reason + Confidence", "Forecast และ matching มี capacity guardrail", "Human approval ก่อน activate campaign"], demo: "กรรมการเห็น input → decision → reason → expected impact ใน flow เดียว", section: "forecast", tone: "coral" },
   ];
   return <div className="view-stack">
-    <header className="content-header compact"><div><p className="eyebrow">Evaluation Evidence · 65 points shown</p><h1>ทุกคะแนน<br />มีหลักฐานใน Product</h1></div><p>หน้านี้ไม่ประเมินคะแนนแทนกรรมการ แต่ชี้ให้เห็นว่าแต่ละเกณฑ์พิสูจน์ได้จากจุดใดของระบบและควรสาธิตอย่างไร</p></header>
+    <header className="content-header compact"><div><p className="eyebrow">Validation & Learning · Design Thinking + Agile</p><h1>จากปัญหา<br />สู่หลักฐานที่วัดได้</h1></div><p>Nan Pulse AI แยกสิ่งที่รู้จริง สิ่งที่ AI คาดการณ์ และสิ่งที่ยังต้องพิสูจน์ภาคสนาม เพื่อให้ Prototype เติบโตเป็นระบบที่ชุมชนใช้งานได้จริง</p></header>
+
+    <section className="design-thinking-evidence" aria-labelledby="design-thinking-title">
+      <div className="evidence-section-head"><div><p className="eyebrow">Design Thinking Summary</p><h2 id="design-thinking-title">เริ่มจากผู้ใช้ ไม่ได้เริ่มจาก Feature</h2></div><span>Problem → Insight → Prototype → Test</span></div>
+      <div className="thinking-steps">
+        <article><b>01</b><span>Empathize</span><strong>ฟัง Need ของ 3 ผู้ใช้</strong><p>จังหวัดต้องตัดสินใจได้ ชุมชนต้องได้ demand ที่เหมาะ และนักท่องเที่ยวต้องเข้าใจเหตุผลของเส้นทางใหม่</p></article>
+        <article><b>02</b><span>Define</span><strong>โอกาสกระจุกในฤดูหนาว</strong><p>โจทย์ไม่ใช่การค้นหาสถานที่ แต่คือการกระจายรายได้และนักท่องเที่ยวตลอด 12 เดือน</p></article>
+        <article><b>03</b><span>Ideate</span><strong>Community Need เป็นจุดเริ่ม</strong><p>เปลี่ยนจาก Travel Recommendation เป็น Decision → Campaign → Redirect → Impact</p></article>
+        <article><b>04</b><span>Prototype</span><strong>หนึ่ง Mission ที่ลงมือได้</strong><p>Execute ครั้งเดียวแล้วสร้าง Campaign แจ้งชุมชน ปรับ Journey และจำลองผลกระทบ</p></article>
+        <article className="pending-step"><b>05</b><span>Test next</span><strong>Field validation</strong><p>ทดสอบกับผู้ใช้จริงก่อนนำตัวเลข Actual Result มาใช้ตัดสินใจรอบถัดไป</p></article>
+      </div>
+    </section>
+
+    <section className="validation-board" aria-labelledby="validation-title">
+      <div className="evidence-section-head"><div><p className="eyebrow">User Validation Plan</p><h2 id="validation-title">Prototype ต้องผ่านงานจริงของผู้ใช้</h2></div><span className="pending-badge">Pending field validation</span></div>
+      <div className="validation-cards">
+        <article><span>Government</span><h3>ตัดสินใจและอธิบายเหตุผลได้ภายใน 3 นาที</h3><p><b>Test task:</b> เลือก Mission ตรวจ Confidence แล้ว Execute โดยไม่ต้องมีผู้ช่วย</p><small>Success signal · อธิบาย Reason, Risk และ Impact ได้ครบ</small></article>
+        <article><span>Community</span><h3>เปลี่ยน Need เป็น Campaign ที่ทำได้จริง</h3><p><b>Test task:</b> ระบุ Need ตรวจ Capacity และแก้ Campaign ให้ตรงกับบริบทชุมชน</p><small>Success signal · ยอมรับ Mission และพร้อมเข้าร่วม Pilot</small></article>
+        <article><span>Tourist</span><h3>เข้าใจว่าเหตุใด Journey จึงเปลี่ยน</h3><p><b>Test task:</b> เปรียบเทียบเส้นทางเดิมกับ Experience ที่ AI จับคู่ให้</p><small>Success signal · เลือกพื้นที่รองโดยไม่รู้สึกว่าถูกบังคับ</small></article>
+      </div>
+      <p className="validation-disclaimer"><strong>Evidence rule:</strong> ระบบจะไม่แสดงผลสัมภาษณ์หรือคะแนนความพึงพอใจจนกว่าจะมีการทดสอบกับผู้ใช้จริงและบันทึกวิธีเก็บข้อมูล</p>
+    </section>
+
+    <section className="agile-learning" aria-labelledby="agile-title">
+      <div className="evidence-section-head"><div><p className="eyebrow">Agile Learning Evidence</p><h2 id="agile-title">ทุก Sprint ต้องเปลี่ยนสิ่งที่เรียนรู้ให้เป็น Product</h2></div><span>Build → Measure → Learn</span></div>
+      <div className="sprint-track">
+        <article><span>Sprint 01</span><strong>Frame the problem</strong><p>ตัด Search และ Booking ออก เพื่อโฟกัสการกระจายโอกาส</p><em>Decision system</em></article>
+        <article><span>Sprint 02</span><strong>Community first</strong><p>เปลี่ยน Community Profile ให้พูด Need, Readiness และ Capacity</p><em>Community Mission</em></article>
+        <article><span>Sprint 03</span><strong>Explain the AI</strong><p>เพิ่ม Reason, Confidence และปัจจัยที่ใช้ตัดสินใจทุก Recommendation</p><em>Trust evidence</em></article>
+        <article><span>Sprint 04</span><strong>Prove before action</strong><p>เพิ่ม Execute Mission และ Opportunity Simulator พร้อม Risk</p><em>Action + simulation</em></article>
+        <article className="next-sprint"><span>Next Sprint</span><strong>Field pilot</strong><p>เก็บผลจริง เปรียบเทียบกับ Estimate แล้วปรับ Decision รอบถัดไป</p><em>Actual learning</em></article>
+      </div>
+    </section>
+
+    <section className="impact-proof" aria-labelledby="impact-proof-title">
+      <div className="evidence-section-head"><div><p className="eyebrow">Impact Evidence Chain</p><h2 id="impact-proof-title">Official → Estimate → Actual</h2></div><span>ไม่ใช้คำว่า Impact โดยไม่มีหลักฐาน</span></div>
+      <div className="evidence-layers">
+        <article className="official-layer"><span>01 · Official Baseline</span><strong>422,362 ผู้เยี่ยมเยือน</strong><p>ม.ค.–มี.ค. 2569 · รายได้รวม 1,186.83 ล้านบาท</p><em>Verified government source</em></article>
+        <b aria-hidden="true">→</b>
+        <article className="estimate-layer"><span>02 · AI Estimate</span><strong>+42 คน · +120K บาท</strong><p>+0.6 วันพัก · 18 ครัวเรือน จาก Scenario เวียงสา</p><em>Mock simulation · Confidence 94%</em></article>
+        <b aria-hidden="true">→</b>
+        <article className="actual-layer"><span>03 · Actual Result</span><strong>รอ Field Pilot</strong><p>จำนวนผู้เข้าร่วม รายได้ การกระจาย และ Review หลัง Campaign</p><em>Pending · ไม่สร้างข้อมูลจริงปลอม</em></article>
+        <b aria-hidden="true">→</b>
+        <article className="learn-layer"><span>04 · AI Learns</span><strong>Accuracy + Next Decision</strong><p>วัด Forecast Error แล้วปรับน้ำหนัก Demand, Fit และ Capacity</p><em>Available after actual result</em></article>
+      </div>
+    </section>
+
+    <section className="year-value-proof"><div><p className="eyebrow">12-Month Value Proposition</p><h2>สร้างเหตุผลให้เดินทางทุกฤดูกาล</h2></div><div><strong>12/12</strong><span>เดือนมี Opportunity</span></div><div><strong>Culture</strong><span>เทศกาล · ผ้าทอ · วิถีชุมชน</span></div><div><strong>Wellness</strong><span>ป่า · สมุนไพร · Slow travel</span></div><div><strong>Food</strong><span>กาแฟ · อาหารพื้นเมือง · Harvest</span></div></section>
+
     <section className="criteria-board">{criteria.map((item, index) => <article className={`criteria-card criteria-${item.tone}`} key={item.title}>
       <div className="criteria-score"><strong>{item.score}</strong><span>คะแนน<br />สูงสุด</span></div>
       <div className="criteria-copy"><p>Criterion 0{index + 1}</p><h2>{item.title}</h2><strong>{item.thesis}</strong><ul>{item.evidence.map(point => <li key={point}>{point}</li>)}</ul></div>
@@ -404,13 +452,13 @@ function MissionControl() {
     { id: "twin", label: "AI Opportunity Simulator" },
     { id: "forecast", label: "Tourism Health" },
     { id: "impact", label: "KPI & Impact" },
-    { id: "evaluation", label: "Evaluation Evidence" },
+    { id: "evaluation", label: "Validation & Learning" },
   ];
   return <div className="product-workspace">
     <nav className="workspace-tabs" aria-label="เครื่องมือ Mission Control">{sections.map(item => <button key={item.id} className={section === item.id ? "active" : ""} onClick={() => setSection(item.id)}>{item.label}</button>)}</nav>
     {section === "today" && <MissionView onNavigate={() => setSection("opportunities")} />}
     {section !== "today" && <header className="workspace-identity"><div><p className="eyebrow">01 · Provincial Decision System</p><h1>Mission Control</h1></div><p>ระบบตัดสินใจว่า “จังหวัดควรสร้างโอกาสที่ไหน เมื่อไร และให้ใคร” ก่อนส่ง Decision ไปสู่แคมเปญ ชุมชน และการเดินทางจริง</p></header>}
-    {section !== "today" && <section className="decision-doctrine"><div><span>Nan Pulse is</span><strong>ระบบการตัดสินใจ</strong></div><b>≠</b><div><span>Nan Pulse is not</span><strong>ระบบแนะนำสถานที่</strong></div><ol><li>AI Detects</li><li>Signals</li><li>Campaign</li><li>Redirect</li><li>Impact</li></ol></section>}
+    {section !== "today" && <section className="decision-doctrine"><div><span>Nan Pulse AI is</span><strong>ระบบการตัดสินใจ</strong></div><b>≠</b><div><span>Nan Pulse AI is not</span><strong>ระบบแนะนำสถานที่</strong></div><ol><li>AI Detects</li><li>Signals</li><li>Campaign</li><li>Redirect</li><li>Impact</li></ol></section>}
     {section !== "today" && <section className="criteria-ribbon" aria-label="เกณฑ์การให้คะแนน"><button onClick={() => setSection("impact")}><strong>20</strong><span>Impact เชิงท่องเที่ยว</span></button><button onClick={() => setSection("today")}><strong>15</strong><span>ความเข้าใจชุมชน</span></button><button onClick={() => setSection("twin")}><strong>15</strong><span>ความคิดสร้างสรรค์</span></button><button onClick={() => setSection("evaluation")}><strong>15</strong><span>การใช้ AI</span></button></section>}
     {section === "opportunities" && <OpportunityView />}
     {section === "twin" && <TourismDigitalTwin />}
@@ -473,7 +521,7 @@ export function NanPulseApp() {
   return (
     <main className="app-shell">
       <aside className="sidebar">
-        <div className="brand"><span className="brand-pulse">N</span><div><strong>Nan Pulse</strong><small>The Operating Pulse<br />of Sustainable Tourism</small></div></div>
+        <div className="brand"><span className="brand-pulse">AI</span><div><strong>Nan Pulse AI</strong><small>The Operating Pulse<br />of Sustainable Tourism</small></div></div>
         <nav aria-label="เมนูหลัก">
           {views.map((item) => (
             <button key={item.id} className={view === item.id ? "active" : ""} onClick={() => setView(item.id)}>
@@ -485,7 +533,7 @@ export function NanPulseApp() {
       </aside>
 
       <section className="main-area">
-        <header className="topbar"><div><span className="mobile-mark">N</span><p>{current.label}</p></div><div className="topbar-actions"><button aria-label="การแจ้งเตือน">●<span>2</span></button><div className="profile"><span>NP</span><div><strong>{view === "mission" ? "ทีมยุทธศาสตร์ท่องเที่ยว" : view === "copilot" ? "เครือข่ายชุมชนน่าน" : "Nan Explorer"}</strong><small>{view === "mission" ? "จังหวัดน่าน" : view === "copilot" ? "Local operator workspace" : "Adaptive journey"}</small></div></div></div></header>
+        <header className="topbar"><div><span className="mobile-mark">AI</span><p>{current.label}</p></div><div className="topbar-actions"><button aria-label="การแจ้งเตือน">●<span>2</span></button><div className="profile"><span>NP</span><div><strong>{view === "mission" ? "ทีมยุทธศาสตร์ท่องเที่ยว" : view === "copilot" ? "เครือข่ายชุมชนน่าน" : "Nan Explorer"}</strong><small>{view === "mission" ? "จังหวัดน่าน" : view === "copilot" ? "Local operator workspace" : "Adaptive journey"}</small></div></div></div></header>
         <div className="content-area">
           {view === "mission" && <MissionControl />}
           {view === "copilot" && <CommunityCopilot />}
