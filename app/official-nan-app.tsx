@@ -8,7 +8,7 @@ type OfficialRecord={sourceId:string;datasetId:string;category:string;title:stri
 type CatalogAudit={url:string;rawMatches:number;nanDatasets:number;uniqueResources:number;newResources:number;duplicateResourcesRemoved:number;duplicateRecordsRemoved:number};
 type Payload={status:string;province:string;policy:string;fetchedAt:string;sources:Source[];data:Record<string,RecordRow[]>;officialRecords:OfficialRecord[];catalog:CatalogAudit;errors:string[];decisionGate:{status:string;reason:string}};
 type Signal={id:number;communityName:string;district:string;needType:string;targetSegment:string;needScore:number;capacityTotal:number;capacityUsed:number;currentVisitors:number;collectionMethod:string;evidenceUrl:string;collectedAt:string;verifiedBy:string;notes:string;ageHours:number;available:number;availabilityPercent:number;densityPercent:number;eligible:boolean;score:number;confidence:number;action:string;reasons:string[];isDemo?:boolean;month?:string;monthNumber?:number;theme?:string;experience?:string;expectedVisitors?:number;expectedIncome?:number;households?:number;stayNights?:number};
-type SignalPayload={policy:{maxAgeHours:number;densityFormula:string;decisionFormula:string};signals:Signal[];decision:Signal|null;alternatives:Signal[];error?:string};
+type SignalPayload={policy:{maxAgeHours:number;densityFormula:string;decisionFormula:string};signals:Signal[];decision:Signal|null;alternatives:Signal[];error?:string;storage?:"shared"|"device"};
 type View="decision"|"year"|"campaign"|"impact"|"signals"|"inventory"|"explorer";
 
 const demoRows=[
@@ -30,6 +30,19 @@ const demoSignals:Signal[]=demoRows.map((row,index)=>{const [month,communityName
 const rankedDemoSignals=demoSignals.slice().sort((a,b)=>b.score-a.score);
 const demoMission=demoSignals.find(signal=>signal.communityName==="เวียงสา"&&signal.theme==="Coffee Harvest")??rankedDemoSignals[0];
 const demoPayload:SignalPayload={policy:{maxAgeHours:24,densityFormula:"ผู้มาเยือนปัจจุบัน ÷ จำนวนที่รองรับได้ × 100",decisionFormula:"ความต้องการ 50% + ที่ว่าง 30% + ความไม่หนาแน่น 20%"},signals:rankedDemoSignals,decision:demoMission,alternatives:rankedDemoSignals.filter(signal=>signal.id!==demoMission.id).slice(0,3)};
+const LOCAL_SIGNALS_KEY="nan-pulse-community-signals-v1";
+const signalPolicy={maxAgeHours:24,densityFormula:"ผู้มาเยือนปัจจุบัน ÷ จำนวนที่รองรับได้ × 100",decisionFormula:"ความต้องการ 50% + ที่ว่าง 30% + ความไม่หนาแน่น 20%"};
+
+function evaluateDeviceSignal(signal:Signal){
+  const ageHours=Math.max(0,(Date.now()-Date.parse(signal.collectedAt))/3_600_000),available=Math.max(0,signal.capacityTotal-signal.capacityUsed);
+  const availabilityPercent=signal.capacityTotal?available/signal.capacityTotal*100:0,densityPercent=signal.capacityTotal?signal.currentVisitors/signal.capacityTotal*100:0;
+  const eligible=ageHours<=24&&available>0&&densityPercent<75&&signal.needScore>=60,score=Math.round(signal.needScore*.5+availabilityPercent*.3+Math.max(0,100-densityPercent)*.2);
+  return {...signal,ageHours:Math.round(ageHours*10)/10,available,availabilityPercent:Math.round(availabilityPercent),densityPercent:Math.round(densityPercent),eligible,score,confidence:Math.round(Math.max(0,Math.min(98,98-ageHours*1.2))),action:eligible?(score>=80?`เปิดแคมเปญสำหรับ ${signal.targetSegment}`:`ทดลองแคมเปญขนาดเล็กสำหรับ ${signal.targetSegment}`):"รอตรวจสอบข้อมูล",reasons:[`ความต้องการ ${signal.needScore}/100`,`รองรับเพิ่มได้ ${available} คน`,`ความหนาแน่น ${Math.round(densityPercent)}%`]};
+}
+
+function readDeviceSignals():SignalPayload{
+  try{const rows=JSON.parse(localStorage.getItem(LOCAL_SIGNALS_KEY)??"[]") as Signal[];const latest=[...new Map(rows.sort((a,b)=>Date.parse(b.collectedAt)-Date.parse(a.collectedAt)).map(row=>[row.communityName.trim().toLocaleLowerCase("th"),row])).values()];const signals=latest.map(evaluateDeviceSignal).sort((a,b)=>b.score-a.score);return {policy:signalPolicy,signals,decision:signals.find(item=>item.eligible)??null,alternatives:signals.filter(item=>item.eligible).slice(1,4),storage:"device"};}catch{return {policy:signalPolicy,signals:[],decision:null,alternatives:[],storage:"device"};}
+}
 
 const empty:Payload={status:"loading",province:"น่าน",policy:"Official data only · No mock values",fetchedAt:"—",sources:[],data:{},officialRecords:[],catalog:{url:"",rawMatches:0,nanDatasets:0,uniqueResources:0,newResources:0,duplicateResourcesRemoved:0,duplicateRecordsRemoved:0},errors:[],decisionGate:{status:"insufficient",reason:"กำลังตรวจสอบความเพียงพอของข้อมูลทางการ"}};
 const number=(value:string|undefined)=>Number((value??"0").replace(/[ ,]/g,""))||0;
@@ -42,9 +55,9 @@ function useOfficialNan(){
 }
 
 function useCommunitySignals(){
-  const [data,setData]=useState<SignalPayload>({policy:{maxAgeHours:24,densityFormula:"currentVisitors / capacityTotal × 100",decisionFormula:"Need 50% + Available Capacity 30% + Low Density 20%"},signals:[],decision:null,alternatives:[]});
+  const [data,setData]=useState<SignalPayload>({policy:signalPolicy,signals:[],decision:null,alternatives:[]});
   const [loading,setLoading]=useState(true); const [run,setRun]=useState(0);
-  useEffect(()=>{setLoading(true);fetch("/api/community-signals").then(response=>response.json()).then(setData).finally(()=>setLoading(false));},[run]);
+  useEffect(()=>{setLoading(true);fetch("/api/community-signals").then(async response=>{const body=await response.json();if(!response.ok)throw new Error(body.error??"ไม่สามารถเชื่อมฐานข้อมูลกลางได้");return {...body,storage:"shared"} as SignalPayload;}).then(setData).catch(()=>setData(readDeviceSignals())).finally(()=>setLoading(false));},[run]);
   return {data,loading,refresh:()=>setRun(value=>value+1)};
 }
 
@@ -126,7 +139,22 @@ function SignalsView({payload,onSaved}:{payload:SignalPayload;onSaved:()=>void})
   const [form,setForm]=useState({communityName:"",district:"",needType:"Need Visitors",targetSegment:"Coffee Lovers",needScore:"70",capacityTotal:"",capacityUsed:"",currentVisitors:"",collectionMethod:"Community headcount",evidenceUrl:"",collectedAt:localNow,verifiedBy:"",notes:""});
   const [status,setStatus]=useState("");
   const update=(key:string,value:string)=>setForm(current=>({...current,[key]:value}));
-  const submit=async(event:React.FormEvent)=>{event.preventDefault();setStatus("กำลังตรวจสอบและบันทึก…");const response=await fetch("/api/community-signals",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...form,needScore:Number(form.needScore),capacityTotal:Number(form.capacityTotal),capacityUsed:Number(form.capacityUsed),currentVisitors:Number(form.currentVisitors),collectedAt:new Date(form.collectedAt).toISOString()})});const body=await response.json();if(!response.ok){setStatus(body.error??"บันทึกไม่สำเร็จ");return;}setStatus(`บันทึก ${body.signal.communityName} แล้ว · Decision Score ${body.signal.score}`);setForm(current=>({...current,communityName:"",capacityTotal:"",capacityUsed:"",currentVisitors:"",evidenceUrl:"",verifiedBy:"",notes:""}));onSaved();};
+  const submit=async(event:React.FormEvent)=>{
+    event.preventDefault();setStatus("กำลังตรวจสอบและบันทึก…");
+    const values={...form,needScore:Number(form.needScore),capacityTotal:Number(form.capacityTotal),capacityUsed:Number(form.capacityUsed),currentVisitors:Number(form.currentVisitors),collectedAt:new Date(form.collectedAt).toISOString()};
+    if(values.capacityUsed>values.capacityTotal){setStatus("จำนวนที่ใช้แล้วต้องไม่มากกว่าจำนวนที่ชุมชนรองรับได้");return;}
+    try{
+      const response=await fetch("/api/community-signals",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(values)});const body=await response.json();
+      if(!response.ok){if(response.status<500){setStatus(body.error??"กรุณาตรวจสอบข้อมูลอีกครั้ง");return;}throw new Error(body.error);}
+      setStatus(`บันทึกข้อมูลของ ${body.signal.communityName} ลงฐานข้อมูลกลางแล้ว`);
+    }catch{
+      const stored=JSON.parse(localStorage.getItem(LOCAL_SIGNALS_KEY)??"[]") as Signal[];
+      const localSignal:Signal={id:Date.now(),...values,available:0,availabilityPercent:0,densityPercent:0,ageHours:0,eligible:false,score:0,confidence:0,action:"",reasons:[]};
+      const unique=stored.filter(item=>!(item.communityName.trim()===localSignal.communityName.trim()&&item.collectedAt===localSignal.collectedAt));unique.push(localSignal);localStorage.setItem(LOCAL_SIGNALS_KEY,JSON.stringify(unique));
+      setStatus(`บันทึกข้อมูลของ ${localSignal.communityName} ไว้ในอุปกรณ์นี้แล้ว`);
+    }
+    setForm(current=>({...current,communityName:"",capacityTotal:"",capacityUsed:"",currentVisitors:"",evidenceUrl:"",verifiedBy:"",notes:""}));onSaved();
+  };
   return <div className="official-stack"><header className="official-page-head"><div><p className="official-eyebrow">Community Signal Registry</p><h1>ข้อมูลปัจจุบัน<br/>ที่ AI ตรวจสอบย้อนกลับได้</h1></div><p>ไม่มีค่าเริ่มต้นสมมติ ทุก observation ต้องมีผู้ยืนยัน เวลาเก็บ และหลักฐานอ้างอิง ระบบเก็บประวัติใหม่โดยไม่เขียนทับข้อมูลเดิม</p></header><section className="signal-layout"><form className="signal-form" onSubmit={submit}><div className="status-head"><div><p className="official-eyebrow">New Observation</p><h2>บันทึกสัญญาณจากชุมชน</h2></div><span>อายุข้อมูล ≤ 24 ชม.</span></div><div className="form-grid"><label>ชื่อชุมชน<input required value={form.communityName} onChange={event=>update("communityName",event.target.value)} placeholder="ชื่อที่ตรวจสอบได้"/></label><label>อำเภอ<input required value={form.district} onChange={event=>update("district",event.target.value)} placeholder="อำเภอในจังหวัดน่าน"/></label><label>Community Need<select value={form.needType} onChange={event=>update("needType",event.target.value)}>{["Need Visitors","Need Promotion","Need Coffee Lovers","Need Family Travelers","Need Wellness Travelers","Need Culture Travelers","Need Food Travelers"].map(item=><option key={item}>{item}</option>)}</select></label><label>กลุ่มเป้าหมาย<select value={form.targetSegment} onChange={event=>update("targetSegment",event.target.value)}>{["Coffee Lovers","Families","Wellness Travelers","Culture Travelers","Food Travelers","Slow Travelers"].map(item=><option key={item}>{item}</option>)}</select></label><label>Need Score (0–100)<input required type="number" min="0" max="100" value={form.needScore} onChange={event=>update("needScore",event.target.value)}/></label><label>Capacity สูงสุด (คน)<input required type="number" min="1" value={form.capacityTotal} onChange={event=>update("capacityTotal",event.target.value)}/></label><label>Capacity ที่ใช้แล้ว (คน)<input required type="number" min="0" value={form.capacityUsed} onChange={event=>update("capacityUsed",event.target.value)}/></label><label>ผู้มาเยือนปัจจุบัน (คน)<input required type="number" min="0" value={form.currentVisitors} onChange={event=>update("currentVisitors",event.target.value)}/></label><label>วิธีเก็บข้อมูล<input required value={form.collectionMethod} onChange={event=>update("collectionMethod",event.target.value)}/></label><label>เวลาเก็บข้อมูล<input required type="datetime-local" value={form.collectedAt} onChange={event=>update("collectedAt",event.target.value)}/></label><label className="wide">URL หลักฐาน<input required type="url" value={form.evidenceUrl} onChange={event=>update("evidenceUrl",event.target.value)} placeholder="แบบสำรวจ เอกสาร หรือ dashboard ต้นทาง"/></label><label>ผู้ยืนยันข้อมูล<input required value={form.verifiedBy} onChange={event=>update("verifiedBy",event.target.value)} placeholder="ชื่อและบทบาท"/></label><label>หมายเหตุ<input value={form.notes} onChange={event=>update("notes",event.target.value)}/></label></div><button>ยืนยันและส่งให้ AI ประเมิน</button>{status&&<p className="form-status">{status}</p>}</form><aside className="signal-rules"><p className="official-eyebrow">Decision Rules</p><h2>AI ใช้ข้อมูลอย่างไร</h2><ol><li><b>Freshness</b><span>ใช้ observation ล่าสุดที่อายุไม่เกิน {payload.policy.maxAgeHours} ชั่วโมง</span></li><li><b>Density</b><span>{payload.policy.densityFormula}</span></li><li><b>Eligibility</b><span>Need ≥ 60, ยังมีที่ว่าง และ Density &lt; 75%</span></li><li><b>Ranking</b><span>{payload.policy.decisionFormula}</span></li></ol></aside></section><section className="signal-register"><div className="status-head"><div><p className="official-eyebrow">Latest Verified Observation</p><h2>สถานะรายชุมชน</h2></div><span>{payload.signals.length} ชุมชน</span></div>{payload.signals.length===0?<p className="empty-state">ยังไม่มีข้อมูลชุมชนจริง ระบบจึงไม่สร้างตัวเลขตัวอย่างให้เอง</p>:<div>{payload.signals.map(signal=><article key={signal.id}><div><strong>{signal.communityName}</strong><small>{signal.district} · {signal.needType}</small></div><span><b>{signal.available}</b> ที่ว่าง</span><span><b>{signal.densityPercent}%</b> Density</span><span><b>{signal.ageHours}</b> ชม.</span><a href={signal.evidenceUrl} target="_blank" rel="noreferrer">หลักฐาน ↗</a></article>)}</div>}</section></div>
 }
 
