@@ -10,6 +10,7 @@ import "./impact-twin.css";
 import "./mission-first.css";
 import "./mission-cta.css";
 import "./decision-loop.css";
+import "./clarity.css";
 
 export async function generateMetadata(): Promise<Metadata> {
   const requestHeaders = await headers();
