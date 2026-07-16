@@ -49,7 +49,7 @@ function errorMessage(error: unknown) {
 
 export async function GET() {
   try {
-    const rows = await getDb().select().from(communitySignals).orderBy(desc(communitySignals.collectedAt), desc(communitySignals.id)).limit(500);
+    const rows = await (await getDb()).select().from(communitySignals).orderBy(desc(communitySignals.collectedAt), desc(communitySignals.id)).limit(500);
     const latest = [...new Map(rows.map(row => [row.communityName.trim().toLocaleLowerCase("th"), row])).values()];
     const evaluated = latest.map(evaluate).sort((a, b) => b.score - a.score);
     return Response.json({
@@ -75,7 +75,7 @@ export async function POST(request: Request) {
     try { const url = new URL(evidenceUrl); if (!['http:', 'https:'].includes(url.protocol)) throw new Error(); } catch { return Response.json({ error: "หลักฐานต้องเป็น URL ที่เปิดตรวจสอบได้" }, { status: 400 }); }
     const collectedAt = new Date(String(body.collectedAt));
     if (!Number.isFinite(collectedAt.getTime()) || collectedAt.getTime() > Date.now() + 600_000) return Response.json({ error: "วันเวลาที่เก็บข้อมูลไม่ถูกต้อง" }, { status: 400 });
-    const [signal] = await getDb().insert(communitySignals).values({
+    const [signal] = await (await getDb()).insert(communitySignals).values({
       communityName: String(body.communityName).trim(), district: String(body.district).trim(), needType: String(body.needType).trim(), targetSegment: String(body.targetSegment).trim(),
       needScore, capacityTotal, capacityUsed, currentVisitors, collectionMethod: String(body.collectionMethod).trim(), evidenceUrl,
       collectedAt: collectedAt.toISOString(), verifiedBy: String(body.verifiedBy).trim(), notes: String(body.notes ?? "").trim(),
