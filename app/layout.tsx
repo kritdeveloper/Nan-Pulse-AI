@@ -4,7 +4,7 @@ import "./globals.css";
 import "./community-signals.css";
 import "./track3-campaign.css";
 import "./marketing-intelligence.css";
-import "./judge-evidence.css";
+import "./responsible-launch.css";
 
 export async function generateMetadata(): Promise<Metadata> {
   const requestHeaders = await headers();
