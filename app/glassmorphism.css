@@ -137,13 +137,27 @@ body::after {
   backdrop-filter: blur(24px) saturate(130%);
 }
 
-.official-content section:not(.official-hero):not(.mission-first),
+.evidence-status,
+.official-tourism-baseline,
+.decision-gaps,
+.district-table,
+.official-records,
+.source-register-official,
+.decision-receipt,
+.alternative-list,
+.signal-register,
+.season-wheel,
+.agile-loop,
+.scenario-lab,
+.mission-loop,
+.responsible-launch,
+.impact-scoreboard,
+.campaign-simulation,
+.marketing-coach,
 .signal-form,
 .signal-rules,
 .campaign-builder,
-.campaign-output,
 .marketing-intelligence > div,
-.marketing-intelligence > aside,
 .twin-control > div,
 .twin-control > aside {
   border-color: var(--glass-border) !important;
@@ -155,7 +169,6 @@ body::after {
 
 .official-tourism-baseline,
 .loop-evidence,
-.impact-evidence,
 .scenario-result,
 .twin-impact {
   background: linear-gradient(135deg, rgba(226, 239, 145, 0.78), rgba(255, 255, 255, 0.58)) !important;
@@ -163,26 +176,40 @@ body::after {
 
 .evidence-numbers,
 .receipt-grid article,
-.demo-impact article,
 .scenario-tabs button,
-.scenario-numbers article,
 .alternative-list article,
-.track-flow article,
-.game-options button,
-.content-pack article,
 .launch-checks article,
 .impact-guardrails article,
 .signal-register article,
 .official-records article,
 .official-source-card,
 .decision-gaps article,
-.year-summary article,
 .month-grid article {
   border-color: rgba(255, 255, 255, 0.64) !important;
   background: rgba(255, 255, 255, 0.48) !important;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.82), 0 10px 24px rgba(24, 61, 49, 0.055);
   -webkit-backdrop-filter: blur(14px);
   backdrop-filter: blur(14px);
+}
+
+/* Surfaces designed for light text must remain dark translucent glass. */
+.track-flow,
+.campaign-output,
+.marketing-intelligence > aside,
+.impact-evidence,
+.scenario-result,
+.scenario-numbers article,
+.demo-impact article,
+.year-summary article,
+.mission-outcomes article:not(:last-child),
+.twin-impact article,
+.content-pack article,
+.game-options button.active {
+  border-color: rgba(255, 255, 255, 0.16) !important;
+  background: linear-gradient(145deg, rgba(13, 67, 54, 0.9), rgba(7, 48, 39, 0.8)) !important;
+  box-shadow: 0 18px 42px rgba(9, 51, 42, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.13) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(135%);
+  backdrop-filter: blur(20px) saturate(135%);
 }
 
 .inventory-summary article {
