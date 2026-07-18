@@ -548,11 +548,146 @@ input[type="range"] {
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* Liquid navigation: a contained, high-contrast fluid control surface. */
+.official-shell > aside {
+  overflow: hidden;
+}
+.official-shell nav {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  padding: 8px;
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 14% 0%, rgba(214,234,130,.16), transparent 34%),
+    linear-gradient(145deg, rgba(255,255,255,.1), rgba(0,0,0,.13));
+  box-shadow: inset 2px 2px 5px rgba(255,255,255,.08), inset -3px -4px 8px rgba(0,0,0,.18);
+  overflow: hidden;
+}
+.official-shell nav button {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  border-color: transparent;
+  background: transparent;
+  color: rgba(255,255,255,.9);
+  text-shadow: 0 1px 1px rgba(0,0,0,.28);
+}
+.official-shell nav button::before {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  z-index: -1;
+  border-radius: 10px 16px 12px 17px;
+  background: linear-gradient(135deg, rgba(255,255,255,.08), rgba(214,234,130,.03));
+  opacity: 0;
+  transform: scale(.88);
+  transition: opacity .22s ease, transform .28s cubic-bezier(.2,.8,.2,1), border-radius .28s ease;
+}
+.official-shell nav button:hover::before,
+.official-shell nav button:focus-visible::before {
+  opacity: 1;
+  transform: scale(1);
+}
+.official-shell nav button:focus-visible {
+  outline: 2px solid #eef7b7;
+  outline-offset: -2px;
+}
+.official-shell nav button > div {
+  min-width: 0;
+}
+.official-shell nav button strong,
+.official-shell nav button small {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.official-shell nav button.active {
+  border-color: rgba(255,255,255,.7);
+  background:
+    radial-gradient(circle at 18% 8%, rgba(255,255,255,.92), transparent 28%),
+    linear-gradient(145deg, rgba(255,255,255,.96), rgba(218,229,203,.9));
+  color: #123a30;
+  box-shadow: inset 2px 2px 2px rgba(255,255,255,.9), inset -3px -4px 7px rgba(39,107,87,.16), 0 7px 14px rgba(0,0,0,.2);
+  animation: liquid-settle .38s cubic-bezier(.2,.8,.2,1) both;
+}
+.official-shell nav button.active::after {
+  content: "";
+  position: absolute;
+  right: -15px;
+  bottom: -24px;
+  width: 58px;
+  height: 58px;
+  z-index: -1;
+  border-radius: 46% 54% 61% 39%;
+  background: rgba(214,234,130,.48);
+  filter: blur(1px);
+}
+.official-shell nav button.active small { color: #466158; }
+.official-shell nav button.active > span {
+  border-radius: 42% 58% 53% 47%;
+  box-shadow: inset 2px 2px 3px rgba(255,255,255,.2), inset -2px -3px 5px rgba(0,0,0,.24), 0 3px 7px rgba(0,0,0,.18);
+}
+
+@keyframes liquid-settle {
+  0% { opacity: .7; transform: scale(.96); border-radius: 17px 10px 16px 12px; }
+  62% { transform: scale(1.015); border-radius: 10px 17px 11px 15px; }
+  100% { opacity: 1; transform: scale(1); border-radius: 11px; }
+}
+
+@media (max-width: 980px) {
+  .official-shell {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 10px;
+  }
+  .official-shell > aside {
+    position: relative;
+    top: auto;
+    width: 100%;
+    height: auto;
+    padding: 12px;
+    border-radius: 18px;
+  }
+  .official-brand,
+  .mode-switch,
+  .official-policy { display: none; }
+  .official-shell nav {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 7px;
+  }
+  .official-shell nav button {
+    grid-template-columns: 34px minmax(0, 1fr);
+    min-height: 58px;
+    padding: 8px;
+  }
+  .official-shell nav button strong { font-size: 12px; }
+  .official-shell nav button small { font-size: 9px; }
+  .official-topbar { top: 0; }
+}
+
 @media (max-width: 760px) {
   .official-shell { grid-template-columns: 1fr; gap: 10px; padding: 8px; }
-  .official-shell > aside { width: 100%; height: auto; margin: 0; border-radius: 16px; }
-  .official-shell nav button { min-width: 150px; }
-  .official-topbar { top: 72px; height: 64px; padding: 0 14px; }
+  .official-shell > aside { width: 100%; height: auto; margin: 0; border-radius: 16px; padding: 10px; }
+  .official-shell nav {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+    overflow: hidden;
+  }
+  .official-shell nav button {
+    grid-template-columns: 30px minmax(0, 1fr);
+    min-width: 0;
+    min-height: 58px;
+    padding: 7px;
+  }
+  .official-shell nav button > span { width: 29px; height: 29px; }
+  .official-shell nav button strong { font-size: 11px; line-height: 1.35; }
+  .official-shell nav button small { display: none; }
+  .official-topbar { top: 0; height: 64px; padding: 0 14px; }
   .official-content { padding: 24px 12px; }
   .official-hero { grid-template-columns: 1fr !important; padding: 30px 24px; }
   .official-page-head { gap: 18px; }
@@ -582,6 +717,13 @@ input[type="range"] {
 }
 
 @media (max-width: 460px) {
+  .official-shell nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .official-shell nav button {
+    min-height: 54px;
+    grid-template-columns: 32px minmax(0, 1fr);
+  }
+  .official-shell nav button strong { font-size: 12px; }
+  .official-topbar { top: 0; }
   .official-hero h1,
   .official-page-head h1 { font-size: 38px !important; line-height: 1.18 !important; }
   .official-content p:not(.official-eyebrow),
