@@ -136,6 +136,26 @@ body {
   padding: clamp(28px, 4vw, 54px) clamp(18px, 3vw, 44px);
 }
 .official-stack { gap: 24px; }
+.official-stack > * {
+  min-width: 0;
+  animation: panel-arrive .42s cubic-bezier(.2,.75,.25,1) both;
+}
+.official-stack > *:nth-child(2) { animation-delay: .045s; }
+.official-stack > *:nth-child(3) { animation-delay: .09s; }
+.official-stack > *:nth-child(4) { animation-delay: .135s; }
+.official-stack > *:nth-child(n+5) { animation-delay: .18s; }
+
+.official-content h1,
+.official-content h2,
+.official-content h3,
+.official-content p,
+.official-content strong,
+.official-content small,
+.official-content span,
+.official-content label {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
 
 .official-eyebrow {
   margin-bottom: 10px;
@@ -369,6 +389,47 @@ body {
 .content-pack article,
 .game-options button.active { border-color: rgba(255,255,255,.15) !important; }
 
+/* Dark instruments must always carry their own readable foreground palette. */
+.track-flow,
+.campaign-output,
+.marketing-intelligence > aside,
+.impact-evidence,
+.scenario-result,
+.demo-impact article,
+.year-summary article,
+.mission-outcomes article:not(:last-child),
+.twin-impact article,
+.content-pack article,
+.game-options button.active,
+.scenario-numbers article {
+  color: #fff !important;
+}
+.scenario-numbers article {
+  background: linear-gradient(145deg, #285f4f, #12382e) !important;
+  box-shadow: inset 2px 2px 3px rgba(255,255,255,.1), inset -3px -3px 6px rgba(0,0,0,.2) !important;
+}
+.scenario-numbers small,
+.scenario-numbers span,
+.impact-evidence p,
+.impact-evidence span,
+.campaign-output p,
+.campaign-output small,
+.marketing-intelligence > aside p,
+.marketing-intelligence > aside small,
+.year-summary article small,
+.demo-impact article small,
+.twin-impact article small,
+.content-pack article small {
+  color: rgba(255,255,255,.76) !important;
+}
+.scenario-numbers strong,
+.year-summary article strong,
+.demo-impact article strong,
+.twin-impact article strong,
+.content-pack article strong {
+  color: #eef7b7 !important;
+}
+
 .mission-at-a-glance h2,
 .action-verdict h2,
 .alternatives-panel h3,
@@ -402,6 +463,12 @@ body {
 .official-source-card em {
   font-size: 11px !important;
   line-height: 1.4;
+}
+
+.recommended-mark {
+  background: #173f34 !important;
+  color: #eef7b7 !important;
+  border: 1px solid rgba(238,247,183,.35);
 }
 
 .formula,
@@ -459,6 +526,28 @@ input[type="range"] {
   filter: drop-shadow(0 1px 1px rgba(0,0,0,.18));
 }
 
+/* Motion communicates state changes without making the dashboard feel restless. */
+.loop-track article.active { animation: none !important; }
+.loop-track article,
+.scenario-tabs button,
+.game-options button,
+.official-records article,
+.official-source-card {
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+.scenario-tabs button:hover,
+.game-options button:hover,
+.official-records article:hover,
+.official-source-card:hover { transform: translateY(-2px); }
+.scenario-result article i b,
+.distribution-shift i b,
+.trend-chart i b { transition: width .55s cubic-bezier(.2,.75,.25,1), height .55s cubic-bezier(.2,.75,.25,1); }
+
+@keyframes panel-arrive {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 @media (max-width: 760px) {
   .official-shell { grid-template-columns: 1fr; gap: 10px; padding: 8px; }
   .official-shell > aside { width: 100%; height: auto; margin: 0; border-radius: 16px; }
@@ -469,6 +558,27 @@ input[type="range"] {
   .official-page-head { gap: 18px; }
   .official-page-head > p { max-width: 100%; }
   .decision-lock { width: 164px; height: 164px; padding: 28px; }
+
+  .alternative-list,
+  .signal-register,
+  .district-table { overflow: visible !important; }
+  .alternative-list article,
+  .signal-register > div:last-child article,
+  .district-row {
+    min-width: 0 !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px 12px;
+    align-items: start;
+    border-radius: 10px;
+    margin-top: 10px;
+  }
+  .alternative-list article > b,
+  .alternative-list article > div,
+  .signal-register article > div,
+  .district-row > :first-child { grid-column: 1 / -1; }
+  .alternative-list article em,
+  .signal-register article a { justify-self: start; }
+  .district-label { display: none; }
 }
 
 @media (max-width: 460px) {
@@ -482,5 +592,5 @@ input[type="range"] {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; animation-duration: .01ms !important; }
+  *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
 }
