@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
 import "./globals.css";
+import "./responsive.css";
 import "./community-signals.css";
 import "./track3-campaign.css";
 import "./marketing-intelligence.css";
