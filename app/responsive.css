@@ -1,0 +1,219 @@
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.official-shell,
+.official-main,
+.official-content,
+.official-stack,
+.official-stack > * {
+  min-width: 0;
+}
+
+.official-hero h1,
+.official-page-head h1 {
+  font-size: clamp(38px, 5vw, 64px);
+  line-height: 1.02;
+  overflow-wrap: anywhere;
+}
+
+.data-state-message {
+  margin: 22px 0 0;
+  padding: 18px;
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+  background: #f8faf6;
+  color: var(--muted);
+  font-size: 9px;
+  line-height: 1.65;
+}
+
+.twin-impact {
+  animation: result-update 0.28s ease;
+}
+
+.distribution-shift article b,
+.twin-impact strong {
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes result-update {
+  from { opacity: 0.55; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (max-width: 760px) {
+  .official-shell > aside {
+    width: 100%;
+    max-width: 100vw;
+    overflow: hidden;
+  }
+
+  .official-shell nav {
+    width: 100%;
+    max-width: 100%;
+    padding-bottom: 4px;
+    overscroll-behavior-inline: contain;
+  }
+
+  .official-shell nav button { min-width: 138px; }
+  .mode-switch { display: none; }
+
+  .official-main,
+  .official-content {
+    width: 100%;
+    max-width: 100vw;
+  }
+
+  .official-topbar {
+    top: 64px;
+    width: 100%;
+    padding: 0 14px;
+  }
+
+  .official-content { padding: 18px 12px; }
+
+  .official-hero {
+    width: 100%;
+    padding: 26px 22px;
+    border-radius: 18px;
+    gap: 24px;
+  }
+
+  .official-hero h1,
+  .official-page-head h1 {
+    font-size: clamp(34px, 10vw, 46px);
+    line-height: 1.04;
+    letter-spacing: -0.03em;
+  }
+
+  .official-page-head {
+    gap: 16px;
+    padding: 4px 0 10px;
+  }
+
+  .official-page-head > p {
+    max-width: 100%;
+    font-size: 11px;
+  }
+
+  .mission-at-a-glance,
+  .ai-action,
+  .scenario-result,
+  .receipt-grid,
+  .demo-impact,
+  .marketing-intelligence,
+  .campaign-workspace,
+  .twin-control,
+  .signal-layout,
+  .impact-evidence,
+  .community-approval {
+    grid-template-columns: 1fr !important;
+  }
+
+  .scenario-tabs,
+  .scenario-numbers,
+  .twin-impact,
+  .impact-guardrails,
+  .year-summary,
+  .month-grid,
+  .game-options,
+  .content-pack,
+  .launch-checks {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  .loop-track,
+  .track-flow {
+    overflow-x: auto;
+    padding-bottom: 8px;
+  }
+
+  .loop-track article,
+  .track-flow article { min-width: 145px; }
+
+  .official-tourism-baseline,
+  .evidence-status,
+  .decision-receipt,
+  .scenario-lab,
+  .mission-loop,
+  .signal-form,
+  .signal-rules,
+  .signal-register {
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .form-grid { grid-template-columns: 1fr !important; }
+  .form-grid .wide { grid-column: auto !important; }
+  .district-table { max-width: 100%; overflow-x: auto; }
+  .district-row { min-width: 620px; }
+  .official-source-card { grid-template-columns: 32px minmax(0, 1fr) auto; }
+  .official-source-card strong,
+  .official-source-card p { overflow-wrap: anywhere; }
+}
+
+@media (max-width: 460px) {
+  .official-shell nav button {
+    min-width: 124px;
+    padding: 8px;
+  }
+
+  .official-shell nav button small,
+  .mode-switch { display: none; }
+
+  .official-topbar { top: 55px; height: 56px; }
+  .official-topbar strong { font-size: 9px; }
+  .official-topbar button { font-size: 8px; }
+  .official-content { padding: 14px 10px; }
+  .official-hero { padding: 23px 18px; }
+
+  .official-hero h1,
+  .official-page-head h1 {
+    font-size: 34px;
+    line-height: 1.06;
+  }
+
+  .official-hero > div > p:last-child,
+  .official-page-head > p { font-size: 10px; }
+
+  .decision-lock {
+    width: 112px;
+    height: 112px;
+    border-width: 6px;
+  }
+
+  .scenario-tabs,
+  .scenario-numbers,
+  .twin-impact,
+  .impact-guardrails,
+  .year-summary,
+  .month-grid,
+  .game-options,
+  .content-pack,
+  .launch-checks,
+  .receipt-grid,
+  .demo-impact {
+    grid-template-columns: 1fr !important;
+  }
+
+  .status-head {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .evidence-numbers,
+  .official-tourism-baseline > div:last-child {
+    grid-template-columns: 1fr;
+  }
+
+  .twin-control,
+  .signal-layout { gap: 12px; }
+  .twin-control > *,
+  .signal-layout > * { min-width: 0; }
+  .community-approval button { width: 100%; }
+}
